@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>DineDelight - Home</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+  </head>
+  <body>
+    <h1>Welcome to DineDelight</h1>
+    <p th:if="${#httpServletRequest.remoteUser != null}">Logged in as <strong th:text="${#httpServletRequest.remoteUser}"></strong></p>
+    <p>
+      <a th:if="${#httpServletRequest.remoteUser == null}" th:href="@{/login}">Login</a>
+      <a th:if="${#httpServletRequest.remoteUser == null}" th:href="@{/register}">Register</a>
+      <a th:if="${#httpServletRequest.remoteUser != null}" th:href="@{/logout}">Logout</a>
+    </p>
+  </body>
+</html>
+
+
