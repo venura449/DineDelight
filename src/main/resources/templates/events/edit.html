@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Event Request - DineDelight</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background:#F8F5F0; color:#3C3C3C; min-height:100vh; display:flex; justify-content:center; align-items:center; }
+    .wrap { width:92%; max-width:720px; background:#fff; border-radius:16px; box-shadow:0 15px 30px rgba(0,0,0,.1); overflow:hidden; }
+    .header { background:#D4A76A; color:#fff; padding:20px 28px; display:flex; align-items:center; justify-content:space-between; }
+    .header h1 { font-size:1.4rem; }
+    .header a { color:#fff; text-decoration:none; font-weight:600; }
+    .content { padding:26px; }
+    label { font-weight:600; font-size:.9rem; display:block; margin-bottom:6px; }
+    input, textarea { width:100%; padding:12px; border:1px solid #ddd; border-radius:8px; margin-bottom:10px; }
+    .btn { display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border-radius:8px; border:1px solid #AF2C2C; background:#AF2C2C; color:#fff; cursor:pointer; font-weight:600; }
+    .btn:hover { background:#942525; border-color:#942525; }
+    .ghost { background:#fff; color:#3C3C3C; border:1px solid #D4A76A; }
+    .ghost:hover { background:#FFF7EC; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h1><i class="fas fa-pen"></i> Edit Event Request</h1>
+    <a href="/events/my"><i class="fas fa-list"></i> My Requests</a>
+  </div>
+  <div class="content" th:if="${booking != null}">
+    <form th:action="@{/events/edit}" method="post">
+      <input type="hidden" name="id" th:value="${booking.id}">
+      <div>
+        <label>Space</label>
+        <input type="text" th:value="${booking.eventSpace.name}" disabled>
+      </div>
+      <div>
+        <label>Date</label>
+        <input type="date" name="date" th:value="${#temporals.format(booking.startTime, 'yyyy-MM-dd')}" required>
+      </div>
+      <div>
+        <label>Time</label>
+        <input type="time" name="time" th:value="${#temporals.format(booking.startTime, 'HH:mm')}" required>
+      </div>
+      <div>
+        <label>Duration (minutes)</label>
+        <input type="number" name="durationMinutes" th:value="${#temporals.minutes(booking.endTime.minusSeconds(#temporals.seconds(booking.startTime)))}" value="180" min="60" step="30">
+      </div>
+      <div>
+        <label>Guests</label>
+        <input type="number" name="guests" th:value="${booking.guestCount}" min="1" required>
+      </div>
+      <div>
+        <label>Services</label>
+        <textarea name="services" th:text="${booking.services}"></textarea>
+      </div>
+      <div style="display:flex; gap:10px; margin-top:10px;">
+        <button class="btn" type="submit"><i class="fas fa-save"></i> Save</button>
+        <a class="btn ghost" href="/events/my"><i class="fas fa-times"></i> Cancel</a>
+      </div>
+    </form>
+  </div>
+  <div class="content" th:if="${booking == null}">
+    Booking not found.
+  </div>
+</div>
+</body>
+</html>
+
+

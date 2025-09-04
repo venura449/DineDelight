@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book an Event - DineDelight</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background:#F8F5F0; color:#3C3C3C; min-height:100vh; display:flex; justify-content:center; align-items:center; }
+    .wrap { width:92%; max-width:1000px; background:#fff; border-radius:16px; box-shadow:0 15px 30px rgba(0,0,0,.1); overflow:hidden; }
+    .header { background:#D4A76A; color:#fff; padding:20px 28px; display:flex; align-items:center; justify-content:space-between; }
+    .header h1 { font-size:1.4rem; }
+    .header a { color:#fff; text-decoration:none; font-weight:600; }
+    .content { padding:26px; display:grid; grid-template-columns:1.2fr 1fr; gap:18px; }
+    .card { border:1px solid #eee; border-radius:12px; padding:18px; }
+    .card h2 { color:#AF2C2C; font-size:1.2rem; margin-bottom:12px; }
+    .form-row { display:grid; grid-template-columns: repeat(2, minmax(140px,1fr)); gap:12px; }
+    label { font-weight:600; font-size:.9rem; display:block; margin-bottom:6px; }
+    input, textarea { width:100%; padding:12px; border:1px solid #ddd; border-radius:8px; }
+    textarea { min-height:90px; }
+    .btn { display:inline-flex; align-items:center; gap:8px; padding:12px 16px; border-radius:8px; border:1px solid #AF2C2C; background:#AF2C2C; color:#fff; text-decoration:none; cursor:pointer; font-weight:600; }
+    .btn:hover { background:#942525; border-color:#942525; }
+    .ghost { background:#fff; color:#3C3C3C; border:1px solid #D4A76A; }
+    .ghost:hover { background:#FFF7EC; }
+    .list { display:flex; flex-direction:column; gap:10px; }
+    .item { border:1px solid #eee; border-radius:10px; padding:12px 14px; display:flex; align-items:center; justify-content:space-between; }
+    .badge { background:#F8F5F0; color:#3C3C3C; border:1px solid #E7D9C2; padding:6px 10px; border-radius:999px; font-weight:600; font-size:.85rem; }
+    @media (max-width: 860px) { .content { grid-template-columns: 1fr; } .form-row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h1><i class="fas fa-calendar-check"></i> Book an Event</h1>
+    <div>
+      <a href="/dashboard" style="margin-right:8px"><i class="fas fa-gauge"></i> Dashboard</a>
+      <a href="/events/my"><i class="fas fa-list"></i> My Event Requests</a>
+    </div>
+  </div>
+  <div class="content">
+    <div class="card">
+      <h2>Request Details</h2>
+      <form th:action="@{/events/search}" method="get">
+        <div class="form-row">
+          <div>
+            <label>Date</label>
+            <input type="date" name="date" required th:value="${date}">
+          </div>
+          <div>
+            <label>Time</label>
+            <input type="time" name="time" required th:value="${time}">
+          </div>
+          <div>
+            <label>Duration (minutes)</label>
+            <input type="number" name="durationMinutes" value="180" min="60" step="30" th:value="${durationMinutes}">
+          </div>
+          <div>
+            <label>Guests</label>
+            <input type="number" name="guests" value="20" min="1" th:value="${guests}">
+          </div>
+        </div>
+        <div style="margin-top:14px">
+          <button class="btn" type="submit"><i class="fas fa-search"></i> Find Spaces</button>
+        </div>
+        <div class="badge" th:if="${param.conflict}" style="margin-top:10px">Requested slot conflicts with an existing booking.</div>
+        <div class="badge" th:if="${param.submitted}" style="margin-top:10px">Event request submitted.</div>
+      </form>
+    </div>
+    <div class="card">
+      <h2>Available Spaces</h2>
+      <div th:if="${availableSpaces == null}">Search to see availability.</div>
+      <div th:if="${availableSpaces != null && #lists.isEmpty(availableSpaces)}" style="text-align:center; padding:20px; color:#666;">
+        <i class="fas fa-search" style="font-size:2rem; margin-bottom:12px; display:block; color:#D4A76A;"></i>
+        <p>No available spaces found for your criteria.</p>
+        <p style="font-size:.9rem; margin-top:8px;">Try a different date, time, or guest count.</p>
+      </div>
+      <div class="list" th:if="${availableSpaces != null && !#lists.isEmpty(availableSpaces)}">
+        <div class="item" th:each="s : ${availableSpaces}">
+          <div style="display:flex; gap:12px; align-items:center;">
+            <span class="badge"><i class="fas fa-warehouse"></i> <span th:text="${s.name}"></span></span>
+            <span class="badge">cap <span th:text="${s.capacity}"></span></span>
+          </div>
+          <form th:action="@{/events/request}" method="post">
+            <input type="hidden" name="spaceId" th:value="${s.id}">
+            <input type="hidden" name="date" th:value="${date}">
+            <input type="hidden" name="time" th:value="${time}">
+            <input type="hidden" name="durationMinutes" th:value="${durationMinutes}">
+            <input type="hidden" name="guests" th:value="${guests}">
+            <input type="hidden" name="services" value="">
+            <button class="btn ghost" type="submit"><i class="fas fa-paper-plane"></i> Request</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
+
+

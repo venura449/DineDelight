@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Event Requests - DineDelight</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background:#F8F5F0; color:#3C3C3C; min-height:100vh; display:flex; justify-content:center; align-items:center; }
+    .wrap { width:92%; max-width:1000px; background:#fff; border-radius:16px; box-shadow:0 15px 30px rgba(0,0,0,.1); overflow:hidden; }
+    .header { background:#D4A76A; color:#fff; padding:20px 28px; display:flex; align-items:center; justify-content:space-between; }
+    .header h1 { font-size:1.4rem; }
+    .header a { color:#fff; text-decoration:none; font-weight:600; }
+    .content { padding:26px; }
+    table { width:100%; border-collapse:separate; border-spacing:0; }
+    th, td { text-align:left; padding:12px 14px; border-bottom:1px solid #eee; }
+    th { color:#AF2C2C; font-size:.95rem; }
+    .badge { padding:6px 10px; border-radius:999px; border:1px solid #E7D9C2; font-weight:600; font-size:.85rem; }
+    .pending { background:#FFF7EC; }
+    .approved { background:#E6F4EA; }
+    .rejected { background:#FFE6E6; }
+    /* Alert styles */
+    .alert-ok, .alert-err { padding:12px 16px; border-radius:8px; margin-bottom:16px; font-weight:600; }
+    .alert-ok { background:#E6F4EA; color:#1E4620; border:1px solid #A8E6CF; }
+    .alert-err { background:#FFE6E6; color:#721C24; border:1px solid #F5C6CB; }
+    /* Button styles */
+    .btn { display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:6px; border:1px solid #AF2C2C; background:#AF2C2C; color:#fff; text-decoration:none; cursor:pointer; font-weight:600; font-size:.85rem; }
+    .btn:hover { background:#942525; border-color:#942525; }
+    .ghost { background:#fff; color:#3C3C3C; border:1px solid #D4A76A; }
+    .ghost:hover { background:#FFF7EC; }
+    /* Modal styles */
+    .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; z-index:999; }
+    .modal { width:92%; max-width:720px; background:#fff; border-radius:16px; box-shadow:0 20px 40px rgba(0,0,0,.25); overflow:hidden; }
+    .modal .header { background:#D4A76A; color:#fff; padding:16px 20px; display:flex; align-items:center; justify-content:space-between; }
+    .modal .content { padding:18px; }
+    .close { background:transparent; border:none; color:#fff; font-size:1.2rem; cursor:pointer; }
+    label { font-weight:600; font-size:.9rem; display:block; margin-bottom:6px; }
+    input, textarea { width:100%; padding:12px; border:1px solid #ddd; border-radius:8px; }
+    .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    @media (max-width: 640px) { .row { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h1><i class="fas fa-list"></i> My Event Requests</h1>
+    <a href="/events"><i class="fas fa-calendar-plus"></i> New Request</a>
+  </div>
+  <div class="content">
+    <div class="alert-ok" th:if="${param.submitted}">Event request submitted.</div>
+    <div class="alert-ok" th:if="${param.updated}">Event request updated.</div>
+    <div class="alert-err" th:if="${param.error}">Action failed.</div>
+    <div class="alert-err" th:if="${param.deleted}">Approved event deleted.</div>
+    
+    <div th:if="${#lists.isEmpty(bookings)}" style="text-align:center; padding:40px; color:#666;">
+      <i class="fas fa-calendar-times" style="font-size:3rem; margin-bottom:16px; display:block; color:#D4A76A;"></i>
+      <h3>No Event Requests</h3>
+      <p>You haven't made any event requests yet.</p>
+      <a href="/events" class="btn" style="margin-top:16px; display:inline-block;"><i class="fas fa-calendar-plus"></i> Book Your First Event</a>
+    </div>
+    
+    <table th:if="${!#lists.isEmpty(bookings)}">
+      <thead>
+      <tr>
+        <th>Space</th>
+        <th>Guests</th>
+        <th>Start</th>
+        <th>End</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="b : ${bookings}">
+                 <td th:text="${b.eventSpace != null ? b.eventSpace.name : 'N/A'}"></td>
+                 <td th:text="${b.guestCount != null ? b.guestCount : 'N/A'}"></td>
+                 <td th:text="${b.startTime != null ? #temporals.format(b.startTime, 'yyyy-MM-dd HH:mm') : 'N/A'}"></td>
+         <td th:text="${b.endTime != null ? #temporals.format(b.endTime, 'yyyy-MM-dd HH:mm') : 'N/A'}"></td>
+        <td>
+          <span class="badge pending" th:if="${b.status == T(org.example.dine_delight.model.BookingStatus).PENDING}">Pending</span>
+          <span class="badge approved" th:if="${b.status == T(org.example.dine_delight.model.BookingStatus).APPROVED}">Approved</span>
+          <span class="badge rejected" th:if="${b.status == T(org.example.dine_delight.model.BookingStatus).REJECTED}">Rejected</span>
+          <span class="badge" th:if="${b.status == null}">Unknown</span>
+        </td>
+        <td>
+          <button type="button" class="btn ghost" th:if="${b.status == T(org.example.dine_delight.model.BookingStatus).PENDING}"
+                                     th:attr="data-id=${b.id},
+                            data-space=${b.eventSpace != null ? b.eventSpace.name : 'N/A'},
+                            data-start=${b.startTime != null ? #temporals.format(b.startTime, 'yyyy-MM-dd''T''HH:mm') : ''},
+                            data-end=${b.endTime != null ? #temporals.format(b.endTime, 'yyyy-MM-dd''T''HH:mm') : ''},
+                            data-guests=${b.guestCount != null ? b.guestCount : '0'},
+                            data-services=${b.services != null ? b.services : ''}"
+                  onclick="openEditModal(this)"><i class=\"fas fa-pen\"></i> Edit</button>
+          <form th:if="${b.status == T(org.example.dine_delight.model.BookingStatus).APPROVED}" th:action="@{/events/delete}" method="post" style="display:inline-block">
+            <input type="hidden" name="id" th:value="${b.id}">
+            <button class="btn" type="submit"><i class="fas fa-trash"></i> Delete</button>
+          </form>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div id="editModal" class="modal-backdrop">
+  <div class="modal">
+    <div class="header">
+      <h3><i class="fas fa-pen"></i> Edit Event Request</h3>
+      <button class="close" onclick="closeEditModal()">&times;</button>
+    </div>
+    <div class="content">
+      <form method="post" action="/events/edit" id="editForm">
+        <input type="hidden" name="id" id="edit-id">
+        <div style="margin-bottom:10px">
+          <label>Space</label>
+          <input type="text" id="edit-space" disabled>
+        </div>
+        <div class="row">
+          <div>
+            <label>Date</label>
+            <input type="date" name="date" id="edit-date" required>
+          </div>
+          <div>
+            <label>Time</label>
+            <input type="time" name="time" id="edit-time" required>
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label>Duration (minutes)</label>
+            <input type="number" name="durationMinutes" id="edit-duration" min="60" step="30" value="180">
+          </div>
+          <div>
+            <label>Guests</label>
+            <input type="number" name="guests" id="edit-guests" min="1" required>
+          </div>
+        </div>
+        <div>
+          <label>Services</label>
+          <textarea name="services" id="edit-services"></textarea>
+        </div>
+        <div style="display:flex; gap:10px; margin-top:12px;">
+          <button type="submit" class="btn"><i class="fas fa-save"></i> Save</button>
+          <button type="button" class="btn ghost" onclick="closeEditModal()"><i class="fas fa-times"></i> Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+</div>
+
+<script>
+  function openEditModal(btn) {
+    const id = btn.getAttribute('data-id');
+    const space = btn.getAttribute('data-space');
+    const start = btn.getAttribute('data-start');
+    const end = btn.getAttribute('data-end');
+    const guests = btn.getAttribute('data-guests');
+    const services = btn.getAttribute('data-services') || '';
+
+    // Fill fields
+    document.getElementById('edit-id').value = id;
+    document.getElementById('edit-space').value = space;
+    
+    // Handle date/time parsing with null checks
+    if (start && start !== '') {
+      const startDt = new Date(start);
+      if (!isNaN(startDt.getTime())) {
+        const pad = (n) => String(n).padStart(2, '0');
+        const dateVal = `${startDt.getFullYear()}-${pad(startDt.getMonth()+1)}-${pad(startDt.getDate())}`;
+        const timeVal = `${pad(startDt.getHours())}:${pad(startDt.getMinutes())}`;
+        document.getElementById('edit-date').value = dateVal;
+        document.getElementById('edit-time').value = timeVal;
+      }
+    }
+    
+    // Handle duration calculation with null checks
+    if (end && end !== '' && start && start !== '') {
+      const startDt = new Date(start);
+      const endDt = new Date(end);
+      if (!isNaN(startDt.getTime()) && !isNaN(endDt.getTime())) {
+        const durationMin = Math.max(30, Math.round((endDt - startDt) / 60000));
+        document.getElementById('edit-duration').value = durationMin;
+      }
+    }
+    
+    document.getElementById('edit-guests').value = guests || '0';
+    document.getElementById('edit-services').value = services;
+
+    document.getElementById('editModal').style.display = 'flex';
+  }
+  function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+  }
+</script>
+</body>
+</html>
+
+
