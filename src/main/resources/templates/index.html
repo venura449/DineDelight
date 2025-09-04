@@ -2,17 +2,39 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DineDelight - Home</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+      body { background:#F8F5F0; color:#3C3C3C; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin:0; }
+      .hero { background:#D4A76A; color:#fff; padding:36px 26px; text-align:center; }
+      .hero h1 { margin:0; font-size:2rem; }
+      .container { padding:22px 26px; max-width:980px; margin: 0 auto; }
+      .btn { display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border-radius:8px; border:1px solid #AF2C2C; background:#AF2C2C; color:#fff; text-decoration:none; font-weight:600; }
+      .btn:hover { background:#942525; border-color:#942525; }
+      .ghost { background:#fff; color:#3C3C3C; border:1px solid #D4A76A; }
+      .ghost:hover { background:#FFF7EC; }
+      .links { display:flex; gap:10px; margin-top:12px; flex-wrap:wrap; }
+    </style>
   </head>
   <body>
-    <h1>Welcome to DineDelight</h1>
-    <p th:if="${#httpServletRequest.remoteUser != null}">Logged in as <strong th:text="${#httpServletRequest.remoteUser}"></strong></p>
+    <div class="hero">
+      <h1>DineDelight</h1>
+      <p style="margin-top:6px">Restaurant & Events</p>
+    </div>
+    <div class="container">
+      <h3>Welcome</h3>
+    <p th:if="${#request.userPrincipal != null}">Logged in as <strong th:text="${#request.userPrincipal.name}"></strong></p>
     <p>
-      <a th:if="${#httpServletRequest.remoteUser == null}" th:href="@{/login}">Login</a>
-      <a th:if="${#httpServletRequest.remoteUser == null}" th:href="@{/register}">Register</a>
-      <a th:if="${#httpServletRequest.remoteUser != null}" th:href="@{/logout}">Logout</a>
+      <a class="btn" th:if="${#request.userPrincipal == null}" th:href="@{/login}"><i class="fas fa-right-to-bracket"></i> Login</a>
+      <a class="btn ghost" th:if="${#request.userPrincipal == null}" th:href="@{/register}"><i class="fas fa-user-plus"></i> Register</a>
+      <a class="btn ghost" th:if="${#request.userPrincipal != null}" th:href="@{/logout}"><i class="fas fa-right-from-bracket"></i> Logout</a>
     </p>
+    <div class="links" th:if="${#request.userPrincipal != null}">
+      <a class="btn" href="/dashboard"><i class="fas fa-gauge"></i> Go to Dashboard</a>
+      <a class="btn ghost" href="/reservations"><i class="fas fa-chair"></i> Reservations</a>
+    </div>
+    </div>
   </body>
 </html>
 
