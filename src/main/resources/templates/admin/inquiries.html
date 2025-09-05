@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Manage Orders - Admin</title>
+  <title>Manage Inquiries - Admin</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
@@ -34,11 +34,11 @@
     <div class="brand"><i class="fas fa-utensils"></i> DineDelight</div>
     <ul class="nav">
       <li><a href="/admin"><i class="fas fa-gauge"></i> Dashboard</a></li>
-      <li><a class="active" href="/admin/orders"><i class="fas fa-receipt"></i> Orders</a></li>
+      <li><a href="/admin/orders"><i class="fas fa-receipt"></i> Orders</a></li>
       <li><a href="/admin/menu"><i class="fas fa-burger"></i> Menu</a></li>
       <li><a href="/admin/events"><i class="fas fa-clipboard-check"></i> Event Requests</a></li>
       <li><a href="/admin/places"><i class="fas fa-map-marker-alt"></i> Places</a></li>
-      <li><a href="/admin/inquiries"><i class="fas fa-question-circle"></i> Inquiries</a></li>
+      <li><a class="active" href="/admin/inquiries"><i class="fas fa-question-circle"></i> Inquiries</a></li>
       <li><a href="/dashboard"><i class="fas fa-user"></i> User Dashboard</a></li>
       <li><a href="/logout"><i class="fas fa-right-from-bracket"></i> Logout</a></li>
     </ul>
@@ -46,45 +46,23 @@
   <main class="main">
     <div class="wrap">
       <div class="header">
-        <h1><i class="fas fa-receipt"></i> Manage Orders</h1>
+        <h1><i class="fas fa-question-circle"></i> Manage Inquiries</h1>
       </div>
       <div class="content">
         <table>
-          <thead><tr><th>ID</th><th>User</th><th>Items</th><th>Total</th><th>Status</th><th>Action</th></tr></thead>
+          <thead><tr><th>ID</th><th>User</th><th>Subject</th><th>Message</th><th>Replies</th><th>Created</th><th>Action</th></tr></thead>
           <tbody>
-          <tr th:each="o : ${orders}">
-            <td th:text="${o.id}"></td>
-            <td th:text="${o.user.email}"></td>
+          <tr th:each="inquiry : ${inquiries}">
+            <td th:text="${inquiry.id}"></td>
+            <td th:text="${inquiry.user.email}"></td>
+            <td th:text="${inquiry.subject}"></td>
+            <td th:text="${#strings.abbreviate(inquiry.message, 50)}"></td>
+            <td th:text="${#lists.size(inquiry.replies)}"></td>
+            <td th:text="${#temporals.format(inquiry.createdAt, 'MMM d, h:mm a')}"></td>
             <td>
-              <div th:each="it : ${o.items}">
-                <div>
-                  <b th:text="${it.menuItem.name}"></b>
-                  × <span th:text="${it.quantity}"></span>
-                  - <span th:text="'LKR ' + ${#numbers.formatDecimal(it.lineTotalCents / 100.0, 1, 'COMMA', 2, 'POINT')}"></span>
-                </div>
-              </div>
-            </td>
-            <td th:text="'LKR ' + ${#numbers.formatDecimal(o.totalCents / 100.0, 1, 'COMMA', 2, 'POINT')}"></td>
-            <td th:text="${o.status}"></td>
-            <td>
-              <div th:if="${o.status.name() == 'PENDING'}">
-                <form th:action="@{'/admin/orders/' + ${o.id} + '/approve'}" method="post" style="display:inline-block;">
-                  <button class="btn" type="submit"><i class="fas fa-check"></i> Approve</button>
-                </form>
-                <form th:action="@{'/admin/orders/' + ${o.id} + '/reject'}" method="post" style="display:inline-block; margin-left:6px;">
-                  <button class="btn" type="submit"><i class="fas fa-times"></i> Reject</button>
-                </form>
-              </div>
-              <div th:if="${o.status.name() == 'APPROVED'}">
-                <form th:action="@{'/admin/orders/' + ${o.id} + '/dispatch'}" method="post" style="display:inline-block;">
-                  <button class="btn" type="submit"><i class="fas fa-truck"></i> Dispatch</button>
-                </form>
-              </div>
-              <div th:if="${o.status.name() == 'REJECTED' || o.status.name() == 'DISPATCHED'}">
-                <form th:action="@{'/admin/orders/' + ${o.id} + '/delete'}" method="post" style="display:inline-block;">
-                  <button class="btn" type="submit"><i class="fas fa-trash"></i> Delete</button>
-                </form>
-              </div>
+              <a th:href="@{'/admin/inquiries/' + ${inquiry.id}}" class="btn">
+                <i class="fas fa-eye"></i> View & Reply
+              </a>
             </td>
           </tr>
           </tbody>
@@ -97,9 +75,9 @@
 <script>
   // Toastify notifications
   const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('approved')) {
+  if (urlParams.get('replied')) {
     Toastify({
-      text: "Order approved successfully!",
+      text: "Reply sent successfully!",
       duration: 3000,
       gravity: "top",
       position: "right",
@@ -107,9 +85,9 @@
       stopOnFocus: true
     }).showToast();
   }
-  if (urlParams.get('rejected')) {
+  if (urlParams.get('error')) {
     Toastify({
-      text: "Order rejected!",
+      text: "Failed to send reply. Please try again.",
       duration: 3000,
       gravity: "top",
       position: "right",
@@ -117,28 +95,6 @@
       stopOnFocus: true
     }).showToast();
   }
-  if (urlParams.get('dispatched')) {
-    Toastify({
-      text: "Order dispatched successfully!",
-      duration: 3000,
-      gravity: "top",
-      position: "right",
-      backgroundColor: "#3B82F6",
-      stopOnFocus: true
-    }).showToast();
-  }
-  if (urlParams.get('deleted')) {
-    Toastify({
-      text: "Order deleted successfully!",
-      duration: 3000,
-      gravity: "top",
-      position: "right",
-      backgroundColor: "#6B7280",
-      stopOnFocus: true
-    }).showToast();
-  }
 </script>
 </body>
 </html>
-
-

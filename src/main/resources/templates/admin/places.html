@@ -9,7 +9,7 @@
     * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { background:#F8F5F0; color:#3C3C3C; min-height:100vh; }
     .layout { display:flex; min-height:100vh; }
-    .sidebar { width:240px; background:#fff; border-right:1px solid #eee; padding:22px 18px; position:sticky; top:0; align-self:flex-start; height:100vh; }
+    .sidebar { width:220px; background:#fff; border-right:1px solid #eee; padding:22px 18px; position:sticky; top:0; align-self:flex-start; height:100vh; }
     .brand { display:flex; align-items:center; gap:10px; color:#AF2C2C; font-weight:800; margin-bottom:18px; }
     .nav { list-style:none; }
     .nav li { margin-bottom:8px; }
@@ -43,8 +43,11 @@
     <div class="brand"><i class="fas fa-utensils"></i> DineDelight</div>
     <ul class="nav">
       <li><a href="/admin"><i class="fas fa-gauge"></i> Dashboard</a></li>
+      <li><a href="/admin/orders"><i class="fas fa-receipt"></i> Orders</a></li>
+      <li><a href="/admin/menu"><i class="fas fa-burger"></i> Menu</a></li>
       <li><a href="/admin/events"><i class="fas fa-clipboard-check"></i> Event Requests</a></li>
       <li><a class="active" href="/admin/places"><i class="fas fa-map-marker-alt"></i> Places</a></li>
+      <li><a href="/admin/inquiries"><i class="fas fa-question-circle"></i> Inquiries</a></li>
       <li><a href="/dashboard"><i class="fas fa-user"></i> User Dashboard</a></li>
       <li><a href="/logout"><i class="fas fa-right-from-bracket"></i> Logout</a></li>
     </ul>
