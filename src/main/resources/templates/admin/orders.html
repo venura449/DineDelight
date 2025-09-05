@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Orders - Admin</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background:#F8F5F0; color:#3C3C3C; min-height:100vh; }
+    .layout { display:flex; min-height:100vh; }
+    .sidebar { width:240px; background:#fff; border-right:1px solid #eee; padding:22px 18px; position:sticky; top:0; align-self:flex-start; height:100vh; }
+    .brand { display:flex; align-items:center; gap:10px; color:#AF2C2C; font-weight:800; margin-bottom:18px; }
+    .nav { list-style:none; }
+    .nav li { margin-bottom:8px; }
+    .nav a { display:flex; align-items:center; gap:10px; padding:10px 12px; color:#3C3C3C; text-decoration:none; border-radius:8px; }
+    .nav a:hover, .nav a.active { background:#F8F5F0; color:#AF2C2C; }
+    .main { flex:1; padding:0 24px 24px 24px; }
+    .wrap { width:100%; max-width:1200px; margin:0 auto; }
+    .header { background:#AF2C2C; color:#fff; padding:20px 28px; display:flex; align-items:center; justify-content:space-between; border-radius:0 0 16px 16px; box-shadow:0 4px 14px rgba(0,0,0,.08); }
+    .header h1 { font-size:1.4rem; }
+    .content { padding:26px 0; }
+    table { width:100%; border-collapse:separate; border-spacing:0; }
+    th, td { text-align:left; padding:10px 12px; border-bottom:1px solid #eee; vertical-align: top; }
+    th { color:#AF2C2C; }
+    .btn { display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:8px; border:1px solid #AF2C2C; background:#AF2C2C; color:#fff; cursor:pointer; font-weight:600; }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand"><i class="fas fa-utensils"></i> DineDelight</div>
+    <ul class="nav">
+      <li><a href="/admin"><i class="fas fa-gauge"></i> Dashboard</a></li>
+      <li><a class="active" href="/admin/orders"><i class="fas fa-receipt"></i> Orders</a></li>
+      <li><a href="/admin/menu"><i class="fas fa-burger"></i> Menu</a></li>
+      <li><a href="/admin/events"><i class="fas fa-clipboard-check"></i> Event Requests</a></li>
+      <li><a href="/admin/places"><i class="fas fa-map-marker-alt"></i> Places</a></li>
+      <li><a href="/dashboard"><i class="fas fa-user"></i> User Dashboard</a></li>
+      <li><a href="/logout"><i class="fas fa-right-from-bracket"></i> Logout</a></li>
+    </ul>
+  </aside>
+  <main class="main">
+    <div class="wrap">
+      <div class="header">
+        <h1><i class="fas fa-receipt"></i> Manage Orders</h1>
+      </div>
+      <div class="content">
+        <table>
+          <thead><tr><th>ID</th><th>User</th><th>Items</th><th>Total</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody>
+          <tr th:each="o : ${orders}">
+            <td th:text="${o.id}"></td>
+            <td th:text="${o.user.email}"></td>
+            <td>
+              <div th:each="it : ${o.items}">
+                <div>
+                  <b th:text="${it.menuItem.name}"></b>
+                  × <span th:text="${it.quantity}"></span>
+                  - <span th:text="'LKR ' + ${#numbers.formatDecimal(it.lineTotalCents / 100.0, 1, 'COMMA', 2, 'POINT')}"></span>
+                </div>
+              </div>
+            </td>
+            <td th:text="'LKR ' + ${#numbers.formatDecimal(o.totalCents / 100.0, 1, 'COMMA', 2, 'POINT')}"></td>
+            <td th:text="${o.status}"></td>
+            <td>
+              <div th:if="${o.status.name() == 'PENDING'}">
+                <form th:action="@{'/admin/orders/' + ${o.id} + '/approve'}" method="post" style="display:inline-block;">
+                  <button class="btn" type="submit"><i class="fas fa-check"></i> Approve</button>
+                </form>
+                <form th:action="@{'/admin/orders/' + ${o.id} + '/reject'}" method="post" style="display:inline-block; margin-left:6px;">
+                  <button class="btn" type="submit"><i class="fas fa-times"></i> Reject</button>
+                </form>
+              </div>
+              <div th:if="${o.status.name() == 'APPROVED'}">
+                <form th:action="@{'/admin/orders/' + ${o.id} + '/dispatch'}" method="post" style="display:inline-block;">
+                  <button class="btn" type="submit"><i class="fas fa-truck"></i> Dispatch</button>
+                </form>
+              </div>
+              <div th:if="${o.status.name() == 'REJECTED' || o.status.name() == 'DISPATCHED'}">
+                <form th:action="@{'/admin/orders/' + ${o.id} + '/delete'}" method="post" style="display:inline-block;">
+                  <button class="btn" type="submit"><i class="fas fa-trash"></i> Delete</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>
+
+

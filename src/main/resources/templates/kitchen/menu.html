@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kitchen Menu</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background:#F8F5F0; color:#3C3C3C; min-height:100vh; display:flex; justify-content:center; align-items:center; }
+    .wrap { width:92%; max-width:900px; background:#fff; border-radius:16px; box-shadow:0 15px 30px rgba(0,0,0,.1); overflow:hidden; }
+    .header { background:#AF2C2C; color:#fff; padding:20px 28px; display:flex; align-items:center; justify-content:space-between; }
+    .content { padding:24px; }
+    table { width:100%; border-collapse:separate; border-spacing:0; }
+    th, td { text-align:left; padding:10px 12px; border-bottom:1px solid #eee; }
+    th { color:#AF2C2C; }
+    .btn { display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:8px; border:1px solid #AF2C2C; background:#AF2C2C; color:#fff; cursor:pointer; font-weight:600; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h1><i class="fas fa-kitchen-set"></i> Kitchen - Menu Availability</h1>
+    <a class="btn" href="/logout"><i class="fas fa-right-from-bracket"></i> Logout</a>
+  </div>
+  <div class="content">
+    <table>
+      <thead>
+      <tr><th>Item</th><th>Status</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+      <tr th:each="i : ${items}">
+        <td th:text="${i.name}"></td>
+        <td th:text="${i.available} ? 'Available' : 'Out of Stock'"></td>
+        <td>
+          <form th:action="@{'/kitchen/menu/' + ${i.id} + '/toggle'}" method="post">
+            <button class="btn" type="submit"><i class="fas fa-rotate"></i> Toggle</button>
+          </form>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</body>
+</html>
+
+

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Orders - DineDelight</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = { theme: { extend: { colors: { primary:'#F8F5F0', secondary:'#D4A76A', accent:'#AF2C2C', darktext:'#3C3C3C' } } } }
+  </script>
+</head>
+<body class="bg-primary text-darktext min-h-screen">
+<div class="flex h-screen">
+  <div class="w-64 bg-secondary text-white flex flex-col">
+    <div class="p-5 border-b border-secondary/30">
+      <h1 class="text-2xl font-bold">DineDelight</h1>
+      <p class="text-sm opacity-90 tracking-wider">RESTAURANT & EVENTS</p>
+    </div>
+    <nav class="flex-1 py-4">
+      <div class="px-4 mb-6">
+        <p class="text-xs uppercase tracking-wider opacity-70 mb-3">Main Navigation</p>
+        <a href="/dashboard" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+          <i class="fas fa-gauge-high mr-3"></i>
+          Dashboard
+        </a>
+        <a href="/reservations" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+          <i class="fas fa-chair mr-3"></i>
+          Table Reservations
+        </a>
+        <a href="/events" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+          <i class="fas fa-calendar-plus mr-3"></i>
+          Event Booking
+        </a>
+        <a href="/menu" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+          <i class="fas fa-utensils mr-3"></i>
+          Menu
+        </a>
+        <a href="/orders" class="flex items-center py-3 px-4 bg-accent rounded-lg text-white mb-2">
+          <i class="fas fa-receipt mr-3"></i>
+          Food Orders
+        </a>
+      </div>
+
+      <div class="px-4 mb-6">
+        <p class="text-xs uppercase tracking-wider opacity-70 mb-3">Account</p>
+        <a href="/profile" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+          <i class="fas fa-user mr-3"></i>
+          My Profile
+        </a>
+        <a href="/logout" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+          <i class="fas fa-right-from-bracket mr-3"></i>
+          Logout
+        </a>
+      </div>
+    </nav>
+  </div>
+
+  <div class="flex-1 overflow-y-auto">
+    <header class="bg-white shadow-sm p-4 flex justify-between items-center">
+      <h2 class="text-xl font-semibold">My Orders</h2>
+      <a href="/menu" class="text-accent hover:underline flex items-center"><i class="fas fa-utensils mr-2"></i>Browse Menu</a>
+    </header>
+    <main class="p-6">
+      <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+        <table class="w-full">
+          <thead>
+          <tr class="text-left border-b text-gray-500 text-sm">
+            <th class="pb-3 px-4">ID</th>
+            <th class="pb-3 px-4">Items</th>
+            <th class="pb-3 px-4">Total</th>
+            <th class="pb-3 px-4">Status</th>
+            <th class="pb-3 px-4">Actions</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="o : ${orders}" class="border-b">
+            <td class="py-4 px-4" th:text="${o.id}"></td>
+            <td class="py-4 px-4">
+              <div class="space-y-1" th:each="it : ${o.items}">
+                <div>
+                  <span class="font-medium" th:text="${it.menuItem.name}"></span>
+                  × <span th:text="${it.quantity}"></span>
+                  - <span th:text="'LKR ' + ${#numbers.formatDecimal(it.lineTotalCents / 100.0, 1, 'COMMA', 2, 'POINT')}"></span>
+                </div>
+              </div>
+            </td>
+            <td class="py-4 px-4" th:text="'LKR ' + ${#numbers.formatDecimal(o.totalCents / 100.0, 1, 'COMMA', 2, 'POINT')}"></td>
+            <td class="py-4 px-4">
+              <span class="px-2 py-1 rounded-full text-xs"
+                    th:classappend="${o.status.name()=='PENDING'} ? ' bg-yellow-100 text-yellow-800' : (${o.status.name()=='APPROVED'} ? ' bg-green-100 text-green-800' : (${o.status.name()=='REJECTED'} ? ' bg-red-100 text-red-800' : ' bg-gray-100 text-gray-800'))"
+                    th:text="${o.status}"></span>
+            </td>
+            <td class="py-4 px-4 whitespace-nowrap">
+              <form th:if="${o.status.name() == 'PENDING'}" th:action="@{'/orders/' + ${o.id} + '/cancel'}" method="post" class="inline">
+                <button class="text-accent hover:text-accent/80"><i class="fas fa-ban mr-1"></i>Cancel</button>
+              </form>
+              <form th:if="${o.status.name() == 'PENDING'}" th:action="@{'/orders/' + ${o.id} + '/delete'}" method="post" class="inline ml-3">
+                <button class="text-red-500 hover:text-red-400"><i class="fas fa-trash mr-1"></i>Delete</button>
+              </form>
+            </td>
+          </tr>
+          <tr th:if="${#lists.isEmpty(orders)}">
+            <td colspan="5" class="py-12 text-center text-gray-500">
+              <i class="fas fa-receipt text-4xl mb-2 block"></i>
+              No orders yet.
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</div>
+</body>
+</html>
+
+
