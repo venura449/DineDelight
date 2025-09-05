@@ -102,6 +102,10 @@ public class EventService {
         return eventBookingRepository.findByUserOrderByStartTimeDesc(user);
     }
 
+    public List<EventBooking> getUpcomingEventBookings(User user) {
+        return eventBookingRepository.findUpcomingByUser(user, LocalDateTime.now());
+    }
+
     public List<EventBooking> pendingBookings() {
         return eventBookingRepository.findByStatusOrderByStartTimeAsc(BookingStatus.PENDING);
     }

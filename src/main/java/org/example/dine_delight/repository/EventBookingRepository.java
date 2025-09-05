@@ -27,6 +27,9 @@ public interface EventBookingRepository extends JpaRepository<EventBooking, Long
     List<EventBooking> findByUserOrderByStartTimeDesc(User user);
 
     List<EventBooking> findByStatusOrderByStartTimeAsc(BookingStatus status);
+    
+    @Query("select b from EventBooking b where b.user = :user and b.startTime > :now and b.status = 'APPROVED' order by b.startTime asc")
+    List<EventBooking> findUpcomingByUser(@Param("user") User user, @Param("now") LocalDateTime now);
 }
 
 

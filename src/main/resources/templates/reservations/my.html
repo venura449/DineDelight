@@ -1,71 +1,202 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Reservations - DineDelight</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#F8F5F0',    // 60% - Light neutral background
+            secondary: '#D4A76A',  // 30% - Warm gold accent
+            accent: '#AF2C2C',     // 10% - Deep red for highlights
+            darktext: '#3C3C3C',   // Text color
+          }
+        }
+      }
+    }
+  </script>
   <style>
-    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background:#F8F5F0; color:#3C3C3C; min-height:100vh; display:flex; justify-content:center; align-items:center; }
-    .wrap { width:92%; max-width:1000px; background:#fff; border-radius:16px; box-shadow:0 15px 30px rgba(0,0,0,.1); overflow:hidden; }
-    .header { background:#D4A76A; color:#fff; padding:20px 28px; display:flex; align-items:center; justify-content:space-between; }
-    .header h1 { font-size:1.4rem; }
-    .header a { color:#fff; text-decoration:none; font-weight:600; }
-    .content { padding:26px; }
-    .alert { padding:10px 12px; border-radius:6px; margin:10px 0; font-size:.9rem; }
-    .alert-ok { background:#E6F4EA; color:#2E7D32; border-left:4px solid #2E7D32; }
-    .alert-err { background:#FFE6E6; color:#AF2C2C; border-left:4px solid #AF2C2C; }
-    table { width:100%; border-collapse:separate; border-spacing:0; }
-    th, td { text-align:left; padding:12px 14px; border-bottom:1px solid #eee; }
-    th { color:#AF2C2C; font-size:.95rem; }
-    .btn { display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:8px; border:1px solid #AF2C2C; background:#AF2C2C; color:#fff; cursor:pointer; font-weight:600; }
-    .btn:hover { background:#942525; border-color:#942525; }
-    .ghost { background:#fff; color:#3C3C3C; border:1px solid #D4A76A; }
-    .ghost:hover { background:#FFF7EC; }
-    .actions { display:flex; gap:10px; }
+    body {
+      background-image: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)),
+      url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect fill="none" stroke="%23D4A76A" stroke-width="0.5" x="0" y="0" width="100" height="100"/></svg>');
+      background-size: 30px 30px;
+    }
   </style>
 </head>
-<body>
-<div class="wrap">
-  <div class="header">
-    <h1><i class="fas fa-list"></i> My Reservations</h1>
-    <a href="/dashboard"><i class="fas fa-gauge"></i> Dashboard</a>
-  </div>
-  <div class="content">
-    <div class="alert alert-ok" th:if="${param.cancelled}">Reservation cancelled.</div>
-    <div class="alert alert-err" th:if="${param.error}">Could not cancel reservation.</div>
-
-    <table>
-      <thead>
-      <tr>
-        <th>Table</th>
-        <th>Guests</th>
-        <th>Start</th>
-        <th>End</th>
-        <th>Action</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr th:each="r : ${reservations}">
-        <td th:text="${r.diningTable.tableCode}"></td>
-        <td th:text="${r.guestCount}"></td>
-        <td th:text="${#temporals.format(r.startTime, 'yyyy-MM-dd HH:mm')}"></td>
-        <td th:text="${#temporals.format(r.endTime, 'yyyy-MM-dd HH:mm')}"></td>
-        <td class="actions">
-          <form th:action="@{/reservations/cancel}" method="post">
-            <input type="hidden" name="id" th:value="${r.id}">
-            <button class="btn" type="submit"><i class="fas fa-xmark"></i> Cancel</button>
-          </form>
-        </td>
-      </tr>
-      </tbody>
-    </table>
-
-    <div style="margin-top:14px; display:flex; gap:10px;">
-      <a class="btn ghost" href="/reservations"><i class="fas fa-chair"></i> Back to search</a>
-      <a class="btn ghost" href="/dashboard"><i class="fas fa-gauge"></i> Dashboard</a>
+<body class="bg-primary text-darktext min-h-screen">
+<div class="flex h-screen">
+  <!-- Sidebar Navigation -->
+  <div class="w-64 bg-secondary text-white flex flex-col">
+    <!-- Brand Logo -->
+    <div class="p-5 border-b border-secondary/30">
+      <h1 class="text-2xl font-bold">DineDelight</h1>
+      <p class="text-sm opacity-90 tracking-wider">RESTAURANT & EVENTS</p>
     </div>
+
+    <!-- Navigation Links -->
+    <nav class="flex-1 py-4">
+      <div class="px-4 mb-6">
+        <p class="text-xs uppercase tracking-wider opacity-70 mb-3">Main Navigation</p>
+        <a href="/dashboard" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+          <i class="fas fa-gauge-high mr-3"></i>
+          Dashboard
+        </a>
+        <a href="/reservations" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+          <i class="fas fa-chair mr-3"></i>
+          Table Reservations
+        </a>
+        <a href="/reservations/my" class="flex items-center py-3 px-4 bg-accent rounded-lg text-white mb-2">
+          <i class="fas fa-list mr-3"></i>
+          My Reservations
+        </a>
+        <a href="/events" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+          <i class="fas fa-calendar-plus mr-3"></i>
+          Event Booking
+        </a>
+        <a href="/events/my" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+          <i class="fas fa-calendar-check mr-3"></i>
+          My Event Requests
+        </a>
+      </div>
+
+      <div class="px-4 mb-6">
+        <p class="text-xs uppercase tracking-wider opacity-70 mb-3">Account</p>
+        <a href="/profile" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+          <i class="fas fa-user mr-3"></i>
+          My Profile
+        </a>
+        <a href="/settings" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+          <i class="fas fa-gear mr-3"></i>
+          Settings
+        </a>
+      </div>
+    </nav>
+
+    <!-- Footer -->
+    <div class="p-4 border-t border-secondary/30">
+      <a href="/logout" class="flex items-center py-2 px-4 hover:bg-secondary/80 rounded-lg transition-colors">
+        <i class="fas fa-right-from-bracket mr-3"></i>
+        Logout
+      </a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="flex-1 overflow-y-auto">
+    <!-- Header -->
+    <header class="bg-white shadow-sm p-4 flex justify-between items-center">
+      <h2 class="text-xl font-semibold">My Reservations</h2>
+      <div class="flex items-center space-x-4">
+        <a href="/reservations" class="bg-accent text-white px-4 py-2 rounded-lg hover:bg-accent/90 transition-colors">
+          <i class="fas fa-chair mr-2"></i>
+          Book New Table
+        </a>
+        <div class="relative">
+          <i class="fas fa-bell text-gray-500"></i>
+          <span class="absolute -top-1 -right-1 bg-accent text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">3</span>
+        </div>
+        <div class="flex items-center">
+          <div class="w-8 h-8 bg-accent rounded-full flex items-center justify-center text-white">
+            <i class="fas fa-user"></i>
+          </div>
+          <span class="ml-2">John Doe</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="p-6">
+      <!-- Alert Messages -->
+      <div th:if="${param.cancelled}" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-6">
+        <i class="fas fa-check-circle mr-2"></i>
+        Reservation cancelled successfully.
+      </div>
+      <div th:if="${param.error}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6">
+        <i class="fas fa-exclamation-circle mr-2"></i>
+        Could not cancel reservation. Please try again.
+      </div>
+
+      <!-- No Reservations Message -->
+      <div th:if="${#lists.isEmpty(reservations)}" class="bg-white rounded-xl shadow-sm p-12 text-center">
+        <div class="w-24 h-24 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+          <i class="fas fa-chair text-secondary text-3xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">No Reservations</h3>
+        <p class="text-gray-600 mb-6">You haven't made any table reservations yet.</p>
+        <a href="/reservations" class="bg-accent text-white px-6 py-3 rounded-lg hover:bg-accent/90 transition-colors inline-flex items-center">
+          <i class="fas fa-chair mr-2"></i>
+          Book Your First Table
+        </a>
+      </div>
+
+      <!-- Reservations Table -->
+      <div th:if="${!#lists.isEmpty(reservations)}" class="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-semibold">Your Table Reservations</h3>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="bg-gray-50 text-left text-gray-600 text-sm">
+                <th class="px-6 py-3 font-medium">Table</th>
+                <th class="px-6 py-3 font-medium">Guests</th>
+                <th class="px-6 py-3 font-medium">Start</th>
+                <th class="px-6 py-3 font-medium">End</th>
+                <th class="px-6 py-3 font-medium text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="r : ${reservations}" class="border-b border-gray-100 hover:bg-gray-50">
+                <td class="px-6 py-4">
+                  <div class="flex items-center">
+                    <div class="w-8 h-8 bg-secondary/10 rounded-full flex items-center justify-center mr-3">
+                      <i class="fas fa-utensils text-secondary text-sm"></i>
+                    </div>
+                    <span class="font-medium" th:text="${r.diningTable.tableCode}">Table Code</span>
+                  </div>
+                </td>
+                <td class="px-6 py-4">
+                  <span class="text-gray-600" th:text="${r.guestCount}">0</span>
+                </td>
+                <td class="px-6 py-4">
+                  <span class="text-gray-600" th:text="${#temporals.format(r.startTime, 'yyyy-MM-dd HH:mm')}">Start Time</span>
+                </td>
+                <td class="px-6 py-4">
+                  <span class="text-gray-600" th:text="${#temporals.format(r.endTime, 'yyyy-MM-dd HH:mm')}">End Time</span>
+                </td>
+                <td class="px-6 py-4 text-right">
+                  <form th:action="@{/reservations/cancel}" method="post" style="display:inline-block">
+                    <input type="hidden" name="id" th:value="${r.id}">
+                    <button type="submit" class="text-red-500 hover:text-red-400 transition-colors">
+                      <i class="fas fa-xmark mr-1"></i>
+                      Cancel
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div th:if="${!#lists.isEmpty(reservations)}" class="mt-6 flex gap-3">
+        <a href="/reservations" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+          <i class="fas fa-chair mr-2"></i>
+          Back to Search
+        </a>
+        <a href="/dashboard" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+          <i class="fas fa-gauge mr-2"></i>
+          Dashboard
+        </a>
+      </div>
+    </main>
   </div>
 </div>
 </body>

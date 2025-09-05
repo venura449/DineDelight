@@ -64,6 +64,10 @@ public class ReservationService {
         return reservationRepository.findByUserOrderByStartTimeDesc(user);
     }
 
+    public List<Reservation> getUpcomingReservations(User user) {
+        return reservationRepository.findUpcomingByUser(user, LocalDateTime.now());
+    }
+
     @Transactional
     public boolean cancelReservation(Long reservationId, User user) {
         return reservationRepository.findById(reservationId)

@@ -7,13 +7,21 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background:#F8F5F0; color:#3C3C3C; min-height:100vh; display:flex; justify-content:center; align-items:center; }
-    .wrap { width:92%; max-width:1000px; background:#fff; border-radius:16px; box-shadow:0 15px 30px rgba(0,0,0,.1); overflow:hidden; }
-    .header { background:#AF2C2C; color:#fff; padding:20px 28px; display:flex; align-items:center; justify-content:space-between; }
+    body { background:#F8F5F0; color:#3C3C3C; min-height:100vh; }
+    .layout { display:flex; min-height:100vh; }
+    .sidebar { width:240px; background:#fff; border-right:1px solid #eee; padding:22px 18px; position:sticky; top:0; align-self:flex-start; height:100vh; }
+    .brand { display:flex; align-items:center; gap:10px; color:#AF2C2C; font-weight:800; margin-bottom:18px; }
+    .nav { list-style:none; }
+    .nav li { margin-bottom:8px; }
+    .nav a { display:flex; align-items:center; gap:10px; padding:10px 12px; color:#3C3C3C; text-decoration:none; border-radius:8px; }
+    .nav a:hover, .nav a.active { background:#F8F5F0; color:#AF2C2C; }
+    .main { flex:1; padding:0 24px 24px 24px; }
+    .wrap { width:100%; max-width:1200px; margin:0 auto; }
+    .header { background:#AF2C2C; color:#fff; padding:20px 28px; display:flex; align-items:center; justify-content:space-between; border-radius:0 0 16px 16px; box-shadow:0 4px 14px rgba(0,0,0,.08); }
     .header h1 { font-size:1.4rem; }
     .header a { color:#fff; text-decoration:none; font-weight:600; }
-    .content { padding:26px; }
-    table { width:100%; border-collapse:separate; border-spacing:0; }
+    .content { padding:26px 0; }
+    table { width:100%; border-collapse:separate; border-spacing:0; background:#fff; border-radius:12px; box-shadow:0 6px 14px rgba(0,0,0,.04); overflow:hidden; }
     th, td { text-align:left; padding:12px 14px; border-bottom:1px solid #eee; }
     th { color:#AF2C2C; font-size:.95rem; }
     .btn { display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:8px; border:1px solid #AF2C2C; background:#AF2C2C; color:#fff; cursor:pointer; font-weight:600; }
@@ -22,53 +30,71 @@
     .ghost:hover { background:#FFF7EC; }
     .actions { display:flex; gap:8px; }
     .notice { margin-bottom:10px; padding:10px 12px; border-radius:6px; }
+    @media (max-width: 1000px) { 
+      .layout { flex-direction:column; }
+      .sidebar { position:static; height:auto; width:100%; border-right:none; border-bottom:1px solid #eee; }
+    }
   </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="header">
-    <h1><i class="fas fa-clipboard-check"></i> Pending Event Requests</h1>
-    <div>
-      <a href="/admin/dashboard" style="margin-right:8px"><i class="fas fa-gauge"></i> Admin Dashboard</a>
-      <a href="/logout"><i class="fas fa-right-from-bracket"></i> Logout</a>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand"><i class="fas fa-utensils"></i> DineDelight</div>
+    <ul class="nav">
+      <li><a href="/admin"><i class="fas fa-gauge"></i> Dashboard</a></li>
+      <li><a class="active" href="/admin/events"><i class="fas fa-clipboard-check"></i> Event Requests</a></li>
+      <li><a href="/admin/places"><i class="fas fa-map-marker-alt"></i> Places</a></li>
+      <li><a href="/dashboard"><i class="fas fa-user"></i> User Dashboard</a></li>
+      <li><a href="/logout"><i class="fas fa-right-from-bracket"></i> Logout</a></li>
+    </ul>
+  </aside>
+  <main class="main">
+    <div class="wrap">
+      <div class="header">
+        <h1><i class="fas fa-clipboard-check"></i> Pending Event Requests</h1>
+        <div>
+          <a href="/admin/dashboard" style="margin-right:8px"><i class="fas fa-gauge"></i> Admin Dashboard</a>
+          <a href="/logout"><i class="fas fa-right-from-bracket"></i> Logout</a>
+        </div>
+      </div>
+      <div class="content">
+        <div class="notice" th:if="${param.approved}" style="background:#E6F4EA; color:#2E7D32;">Request approved.</div>
+        <div class="notice" th:if="${param.rejected}" style="background:#FFE6E6; color:#AF2C2C;">Request rejected.</div>
+        <div class="notice" th:if="${param.conflict}" style="background:#FFF7EC;">Conflict with another approved booking.</div>
+        <table>
+          <thead>
+          <tr>
+            <th>Space</th>
+            <th>Guests</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Services</th>
+            <th>Action</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="b : ${bookings}">
+            <td th:text="${b.eventSpace.name}"></td>
+            <td th:text="${b.guestCount}"></td>
+            <td th:text="${#temporals.format(b.startTime, 'yyyy-MM-dd HH:mm')}"></td>
+            <td th:text="${#temporals.format(b.endTime, 'yyyy-MM-dd HH:mm')}"></td>
+            <td th:text="${b.services}"></td>
+            <td class="actions">
+              <form th:action="@{/admin/events/approve}" method="post">
+                <input type="hidden" name="id" th:value="${b.id}">
+                <button class="btn" type="submit"><i class="fas fa-check"></i> Approve</button>
+              </form>
+              <form th:action="@{/admin/events/reject}" method="post">
+                <input type="hidden" name="id" th:value="${b.id}">
+                <button class="btn ghost" type="submit"><i class="fas fa-times"></i> Reject</button>
+              </form>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-  </div>
-  <div class="content">
-    <div class="notice" th:if="${param.approved}" style="background:#E6F4EA; color:#2E7D32;">Request approved.</div>
-    <div class="notice" th:if="${param.rejected}" style="background:#FFE6E6; color:#AF2C2C;">Request rejected.</div>
-    <div class="notice" th:if="${param.conflict}" style="background:#FFF7EC;">Conflict with another approved booking.</div>
-    <table>
-      <thead>
-      <tr>
-        <th>Space</th>
-        <th>Guests</th>
-        <th>Start</th>
-        <th>End</th>
-        <th>Services</th>
-        <th>Action</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr th:each="b : ${bookings}">
-        <td th:text="${b.eventSpace.name}"></td>
-        <td th:text="${b.guestCount}"></td>
-        <td th:text="${#temporals.format(b.startTime, 'yyyy-MM-dd HH:mm')}"></td>
-        <td th:text="${#temporals.format(b.endTime, 'yyyy-MM-dd HH:mm')}"></td>
-        <td th:text="${b.services}"></td>
-        <td class="actions">
-          <form th:action="@{/admin/events/approve}" method="post">
-            <input type="hidden" name="id" th:value="${b.id}">
-            <button class="btn" type="submit"><i class="fas fa-check"></i> Approve</button>
-          </form>
-          <form th:action="@{/admin/events/reject}" method="post">
-            <input type="hidden" name="id" th:value="${b.id}">
-            <button class="btn ghost" type="submit"><i class="fas fa-times"></i> Reject</button>
-          </form>
-        </td>
-      </tr>
-      </tbody>
-    </table>
-  </div>
+  </main>
 </div>
 </body>
 </html>

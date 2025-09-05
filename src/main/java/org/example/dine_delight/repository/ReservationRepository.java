@@ -18,6 +18,9 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
                                    @Param("end") LocalDateTime end);
 
     List<Reservation> findByUserOrderByStartTimeDesc(User user);
+    
+    @Query("select r from Reservation r where r.user = :user and r.startTime > :now order by r.startTime asc")
+    List<Reservation> findUpcomingByUser(@Param("user") User user, @Param("now") LocalDateTime now);
 }
 
 

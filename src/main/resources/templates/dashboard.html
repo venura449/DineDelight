@@ -1,77 +1,260 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - DineDelight</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#F8F5F0',    // 60% - Light neutral background
+            secondary: '#D4A76A',  // 30% - Warm gold accent
+            accent: '#AF2C2C',     // 10% - Deep red for highlights
+            darktext: '#3C3C3C',   // Text color
+          }
+        }
+      }
+    }
+  </script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body {
-      background-color: #F8F5F0; color: #3C3C3C; min-height: 100vh; display: flex; justify-content: center; align-items: center;
-      background-image: linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)),
-        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect fill="none" stroke="%23D4A76A" stroke-width="0.5" x="0" y="0" width="100" height="100"/></svg>');
+      background-image: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)),
+      url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect fill="none" stroke="%23D4A76A" stroke-width="0.5" x="0" y="0" width="100" height="100"/></svg>');
       background-size: 30px 30px;
     }
-    .card {
-      width: 92%; max-width: 900px; background: #fff; border-radius: 16px; box-shadow: 0 15px 30px rgba(0,0,0,0.1);
-      overflow: hidden; display: grid; grid-template-columns: 1fr 1.2fr;
-    }
-    .left {
-      background: #D4A76A; color: #fff; padding: 40px; display: flex; flex-direction: column; justify-content: center; position: relative;
-    }
-    .left::before { content: ""; position: absolute; inset: 0;
-      background: radial-gradient(circle at 20% 80%, rgba(166,123,64,0.5) 0%, transparent 25%),
-                  radial-gradient(circle at 80% 20%, rgba(166,123,64,0.5) 0%, transparent 25%);
-    }
-    .brand { position: relative; z-index: 1; }
-    .brand h1 { font-size: 2.3rem; letter-spacing: 1px; }
-    .brand span { display: block; font-size: .95rem; letter-spacing: 4px; font-weight: 300; opacity: .95; }
-    .icons { margin: 28px 0; position: relative; z-index: 1; }
-    .icons i { font-size: 2.2rem; margin-right: 12px; opacity: .95; }
-    .left p { position: relative; z-index: 1; max-width: 320px; line-height: 1.6; font-weight: 300; }
-    .right { padding: 40px; display: flex; flex-direction: column; justify-content: center; }
-    .title { color: #AF2C2C; font-size: 2rem; margin-bottom: 18px; font-weight: 600; text-align: left; }
-    .actions { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 16px; margin-top: 10px; }
-    .btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 16px; border-radius: 8px; border: 1px solid #ddd; text-decoration: none; color: #3C3C3C; background: #fff; transition: all .25s; font-weight: 600; }
-    .btn i { color: #D4A76A; }
-    .btn:hover { border-color: #D4A76A; box-shadow: 0 4px 16px rgba(212,167,106,0.25); transform: translateY(-1px); }
-    .btn-primary { background: #AF2C2C; color: #fff; border-color: #AF2C2C; }
-    .btn-primary i { color: #fff; }
-    .btn-primary:hover { background: #942525; border-color: #942525; box-shadow: 0 6px 18px rgba(175,44,44,0.25); }
-    .row { display: flex; gap: 12px; flex-wrap: wrap; }
-    @media (max-width: 860px) { .card { grid-template-columns: 1fr; } .left { order: 2; } .right { order: 1; } }
   </style>
-  
 </head>
-<body>
-<div class="card">
-  <div class="left">
-    <div class="brand">
-      <h1>DineDelight</h1>
-      <span>RESTAURANT & EVENTS</span>
+<body class="bg-primary text-darktext min-h-screen">
+<div class="flex h-screen">
+  <!-- Sidebar Navigation -->
+  <div class="w-64 bg-secondary text-white flex flex-col">
+    <!-- Brand Logo -->
+    <div class="p-5 border-b border-secondary/30">
+      <h1 class="text-2xl font-bold">DineDelight</h1>
+      <p class="text-sm opacity-90 tracking-wider">RESTAURANT & EVENTS</p>
     </div>
-    <div class="icons">
-      <i class="fas fa-utensils"></i>
-      <i class="fas fa-glass-cheers"></i>
-      <i class="fas fa-calendar-alt"></i>
+
+    <!-- Navigation Links -->
+    <nav class="flex-1 py-4">
+      <div class="px-4 mb-6">
+        <p class="text-xs uppercase tracking-wider opacity-70 mb-3">Main Navigation</p>
+        <a href="#" class="flex items-center py-3 px-4 bg-accent rounded-lg text-white mb-2">
+          <i class="fas fa-gauge-high mr-3"></i>
+          Dashboard
+        </a>
+        <a href="/reservations" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+          <i class="fas fa-chair mr-3"></i>
+          Table Reservations
+        </a>
+        <a href="/reservations/my" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+          <i class="fas fa-list mr-3"></i>
+          My Reservations
+        </a>
+        <a href="/events" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+          <i class="fas fa-calendar-plus mr-3"></i>
+          Event Booking
+        </a>
+        <a href="/events/my" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+          <i class="fas fa-calendar-check mr-3"></i>
+          My Event Requests
+        </a>
+      </div>
+
+      <div class="px-4 mb-6">
+        <p class="text-xs uppercase tracking-wider opacity-70 mb-3">Account</p>
+        <a href="/profile" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+          <i class="fas fa-user mr-3"></i>
+          My Profile
+        </a>
+        <a href="/settings" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+          <i class="fas fa-gear mr-3"></i>
+          Settings
+        </a>
+      </div>
+    </nav>
+
+    <!-- Footer -->
+    <div class="p-4 border-t border-secondary/30">
+      <a href="/logout" class="flex items-center py-2 px-4 hover:bg-secondary/80 rounded-lg transition-colors">
+        <i class="fas fa-right-from-bracket mr-3"></i>
+        Logout
+      </a>
     </div>
-    <p>Welcome to your dashboard. Manage reservations and view your bookings with a refined experience.</p>
   </div>
-  <div class="right">
-    <div class="title">Dashboard</div>
-    <div class="actions">
-      <a class="btn btn-primary" href="/reservations"><i class="fas fa-chair"></i> Customer Table Reservation</a>
-      <a class="btn" href="/reservations/my"><i class="fas fa-list"></i> My Reservations</a>
-      <a class="btn" href="/events"><i class="fas fa-calendar-plus"></i> Event Booking</a>
-      <a class="btn" href="/events/my"><i class="fas fa-calendar-check"></i> My Event Requests</a>
-      <a class="btn" href="/"><i class="fas fa-home"></i> Home</a>
-      <a class="btn" href="/logout"><i class="fas fa-right-from-bracket"></i> Logout</a>
-    </div>
+
+  <!-- Main Content -->
+  <div class="flex-1 overflow-y-auto">
+    <!-- Header -->
+    <header class="bg-white shadow-sm p-4 flex justify-between items-center">
+      <h2 class="text-xl font-semibold">Dashboard</h2>
+      <div class="flex items-center space-x-4">
+        <div class="relative">
+          <i class="fas fa-bell text-gray-500"></i>
+          <span class="absolute -top-1 -right-1 bg-accent text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">3</span>
+        </div>
+        <div class="flex items-center">
+          <div class="w-8 h-8 bg-accent rounded-full flex items-center justify-center text-white">
+            <i class="fas fa-user"></i>
+          </div>
+          <span class="ml-2" th:text="${user.name}">User Name</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Dashboard Content -->
+    <main class="p-6">
+      <!-- Welcome Banner -->
+      <div class="bg-gradient-to-r from-secondary to-secondary/90 text-white rounded-xl p-6 mb-8">
+        <h1 class="text-2xl font-bold mb-2" th:text="'Welcome back, ' + ${user.name} + '!'">Welcome back, User!</h1>
+        <p class="opacity-90" th:text="'You have ' + ${#lists.size(upcomingReservations)} + ' upcoming reservations and ' + ${#lists.size(upcomingEventBookings)} + ' event bookings this week.'">You have upcoming reservations and event bookings this week.</p>
+      </div>
+
+      <!-- Stats Overview -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-accent">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-gray-500 text-sm">Upcoming Reservations</p>
+              <h3 class="text-2xl font-bold mt-1" th:text="${#lists.size(upcomingReservations)}">0</h3>
+            </div>
+            <div class="bg-accent/10 p-3 rounded-lg">
+              <i class="fas fa-chair text-accent"></i>
+            </div>
+          </div>
+          <a href="/reservations/my" class="text-accent text-sm mt-3 block hover:underline">View all →</a>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-secondary">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-gray-500 text-sm">Event Bookings</p>
+              <h3 class="text-2xl font-bold mt-1" th:text="${#lists.size(upcomingEventBookings)}">0</h3>
+            </div>
+            <div class="bg-secondary/10 p-3 rounded-lg">
+              <i class="fas fa-calendar-check text-secondary"></i>
+            </div>
+          </div>
+          <a href="/events/my" class="text-secondary text-sm mt-3 block hover:underline">View all →</a>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-accent">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-gray-500 text-sm">Total Spent</p>
+              <h3 class="text-2xl font-bold mt-1">$427.50</h3>
+            </div>
+            <div class="bg-accent/10 p-3 rounded-lg">
+              <i class="fas fa-receipt text-accent"></i>
+            </div>
+          </div>
+          <a href="/billing" class="text-accent text-sm mt-3 block hover:underline">View history →</a>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-secondary">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-gray-500 text-sm">Reward Points</p>
+              <h3 class="text-2xl font-bold mt-1">1,250</h3>
+            </div>
+            <div class="bg-secondary/10 p-3 rounded-lg">
+              <i class="fas fa-award text-secondary"></i>
+            </div>
+          </div>
+          <a href="/rewards" class="text-secondary text-sm mt-3 block hover:underline">Redeem now →</a>
+        </div>
+      </div>
+
+      <!-- Upcoming Reservations -->
+      <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-lg font-semibold">Upcoming Reservations</h2>
+          <a href="/reservations" class="text-accent hover:underline">Make New Reservation</a>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+            <tr class="text-left border-b text-gray-500 text-sm">
+              <th class="pb-3">Date & Time</th>
+              <th class="pb-3">Guests</th>
+              <th class="pb-3">Table</th>
+              <th class="pb-3">Status</th>
+              <th class="pb-3 text-right">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="reservation : ${upcomingReservations}" class="border-b hover:bg-gray-50">
+              <td class="py-4" th:text="${#temporals.format(reservation.startTime, 'EEEE, MMM d, h:mm a')}">Date & Time</td>
+              <td th:text="${reservation.guestCount} + ' people'">Guests</td>
+              <td th:text="'Table #' + ${reservation.diningTable.id}">Table</td>
+              <td><span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Confirmed</span></td>
+              <td class="text-right">
+                <button class="text-accent hover:text-accent/80 mr-3">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="text-red-500 hover:text-red-400">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(upcomingReservations)}" class="border-b hover:bg-gray-50">
+              <td colspan="5" class="py-8 text-center text-gray-500">
+                <i class="fas fa-calendar-times text-4xl mb-2 block"></i>
+                No upcoming reservations
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="bg-white rounded-xl shadow-sm p-6">
+        <h2 class="text-lg font-semibold mb-6">Quick Actions</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <a href="/reservations" class="flex flex-col items-center justify-center p-5 border border-gray-200 rounded-lg hover:border-accent hover:shadow-md transition-all">
+            <div class="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mb-3">
+              <i class="fas fa-chair text-accent text-xl"></i>
+            </div>
+            <span class="font-medium">Book a Table</span>
+          </a>
+
+          <a href="/events" class="flex flex-col items-center justify-center p-5 border border-gray-200 rounded-lg hover:border-accent hover:shadow-md transition-all">
+            <div class="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mb-3">
+              <i class="fas fa-calendar-plus text-accent text-xl"></i>
+            </div>
+            <span class="font-medium">Plan an Event</span>
+          </a>
+
+          <a href="/menu" class="flex flex-col items-center justify-center p-5 border border-gray-200 rounded-lg hover:border-accent hover:shadow-md transition-all">
+            <div class="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mb-3">
+              <i class="fas fa-utensils text-accent text-xl"></i>
+            </div>
+            <span class="font-medium">View Menu</span>
+          </a>
+
+          <a href="/contact" class="flex flex-col items-center justify-center p-5 border border-gray-200 rounded-lg hover:border-accent hover:shadow-md transition-all">
+            <div class="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mb-3">
+              <i class="fas fa-headset text-accent text-xl"></i>
+            </div>
+            <span class="font-medium">Contact Us</span>
+          </a>
+        </div>
+      </div>
+    </main>
   </div>
 </div>
 
+<script>
+  // Simple script for mobile menu toggle (if needed in future)
+  document.addEventListener('DOMContentLoaded', function() {
+    // You can add sidebar toggle functionality here for mobile
+    console.log('Dashboard loaded successfully');
+  });
+</script>
 </body>
 </html>
-
-

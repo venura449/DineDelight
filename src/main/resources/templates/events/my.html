@@ -1,154 +1,288 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Event Requests - DineDelight</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#F8F5F0',    // 60% - Light neutral background
+            secondary: '#D4A76A',  // 30% - Warm gold accent
+            accent: '#AF2C2C',     // 10% - Deep red for highlights
+            darktext: '#3C3C3C',   // Text color
+          }
+        }
+      }
+    }
+  </script>
   <style>
-    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background:#F8F5F0; color:#3C3C3C; min-height:100vh; display:flex; justify-content:center; align-items:center; }
-    .wrap { width:92%; max-width:1000px; background:#fff; border-radius:16px; box-shadow:0 15px 30px rgba(0,0,0,.1); overflow:hidden; }
-    .header { background:#D4A76A; color:#fff; padding:20px 28px; display:flex; align-items:center; justify-content:space-between; }
-    .header h1 { font-size:1.4rem; }
-    .header a { color:#fff; text-decoration:none; font-weight:600; }
-    .content { padding:26px; }
-    table { width:100%; border-collapse:separate; border-spacing:0; }
-    th, td { text-align:left; padding:12px 14px; border-bottom:1px solid #eee; }
-    th { color:#AF2C2C; font-size:.95rem; }
-    .badge { padding:6px 10px; border-radius:999px; border:1px solid #E7D9C2; font-weight:600; font-size:.85rem; }
-    .pending { background:#FFF7EC; }
-    .approved { background:#E6F4EA; }
-    .rejected { background:#FFE6E6; }
-    /* Alert styles */
-    .alert-ok, .alert-err { padding:12px 16px; border-radius:8px; margin-bottom:16px; font-weight:600; }
-    .alert-ok { background:#E6F4EA; color:#1E4620; border:1px solid #A8E6CF; }
-    .alert-err { background:#FFE6E6; color:#721C24; border:1px solid #F5C6CB; }
-    /* Button styles */
-    .btn { display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:6px; border:1px solid #AF2C2C; background:#AF2C2C; color:#fff; text-decoration:none; cursor:pointer; font-weight:600; font-size:.85rem; }
-    .btn:hover { background:#942525; border-color:#942525; }
-    .ghost { background:#fff; color:#3C3C3C; border:1px solid #D4A76A; }
-    .ghost:hover { background:#FFF7EC; }
-    /* Modal styles */
-    .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; z-index:999; }
-    .modal { width:92%; max-width:720px; background:#fff; border-radius:16px; box-shadow:0 20px 40px rgba(0,0,0,.25); overflow:hidden; }
-    .modal .header { background:#D4A76A; color:#fff; padding:16px 20px; display:flex; align-items:center; justify-content:space-between; }
-    .modal .content { padding:18px; }
-    .close { background:transparent; border:none; color:#fff; font-size:1.2rem; cursor:pointer; }
-    label { font-weight:600; font-size:.9rem; display:block; margin-bottom:6px; }
-    input, textarea { width:100%; padding:12px; border:1px solid #ddd; border-radius:8px; }
-    .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-    @media (max-width: 640px) { .row { grid-template-columns:1fr; } }
+    body {
+      background-image: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)),
+      url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect fill="none" stroke="%23D4A76A" stroke-width="0.5" x="0" y="0" width="100" height="100"/></svg>');
+      background-size: 30px 30px;
+    }
   </style>
 </head>
-<body>
-<div class="wrap">
-  <div class="header">
-    <h1><i class="fas fa-list"></i> My Event Requests</h1>
-    <a href="/events"><i class="fas fa-calendar-plus"></i> New Request</a>
-  </div>
-  <div class="content">
-    <div class="alert-ok" th:if="${param.submitted}">Event request submitted.</div>
-    <div class="alert-ok" th:if="${param.updated}">Event request updated.</div>
-    <div class="alert-err" th:if="${param.error}">Action failed.</div>
-    <div class="alert-err" th:if="${param.deleted}">Approved event deleted.</div>
-    
-    <div th:if="${#lists.isEmpty(bookings)}" style="text-align:center; padding:40px; color:#666;">
-      <i class="fas fa-calendar-times" style="font-size:3rem; margin-bottom:16px; display:block; color:#D4A76A;"></i>
-      <h3>No Event Requests</h3>
-      <p>You haven't made any event requests yet.</p>
-      <a href="/events" class="btn" style="margin-top:16px; display:inline-block;"><i class="fas fa-calendar-plus"></i> Book Your First Event</a>
+<body class="bg-primary text-darktext min-h-screen">
+<div class="flex h-screen">
+  <!-- Sidebar Navigation -->
+  <div class="w-64 bg-secondary text-white flex flex-col">
+    <!-- Brand Logo -->
+    <div class="p-5 border-b border-secondary/30">
+      <h1 class="text-2xl font-bold">DineDelight</h1>
+      <p class="text-sm opacity-90 tracking-wider">RESTAURANT & EVENTS</p>
     </div>
-    
-    <table th:if="${!#lists.isEmpty(bookings)}">
-      <thead>
-      <tr>
-        <th>Space</th>
-        <th>Guests</th>
-        <th>Start</th>
-        <th>End</th>
-        <th>Status</th>
-        <th>Action</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr th:each="b : ${bookings}">
-                 <td th:text="${b.eventSpace != null ? b.eventSpace.name : 'N/A'}"></td>
-                 <td th:text="${b.guestCount != null ? b.guestCount : 'N/A'}"></td>
-                 <td th:text="${b.startTime != null ? #temporals.format(b.startTime, 'yyyy-MM-dd HH:mm') : 'N/A'}"></td>
-         <td th:text="${b.endTime != null ? #temporals.format(b.endTime, 'yyyy-MM-dd HH:mm') : 'N/A'}"></td>
-        <td>
-          <span class="badge pending" th:if="${b.status == T(org.example.dine_delight.model.BookingStatus).PENDING}">Pending</span>
-          <span class="badge approved" th:if="${b.status == T(org.example.dine_delight.model.BookingStatus).APPROVED}">Approved</span>
-          <span class="badge rejected" th:if="${b.status == T(org.example.dine_delight.model.BookingStatus).REJECTED}">Rejected</span>
-          <span class="badge" th:if="${b.status == null}">Unknown</span>
-        </td>
-        <td>
-          <button type="button" class="btn ghost" th:if="${b.status == T(org.example.dine_delight.model.BookingStatus).PENDING}"
-                                     th:attr="data-id=${b.id},
-                            data-space=${b.eventSpace != null ? b.eventSpace.name : 'N/A'},
-                            data-start=${b.startTime != null ? #temporals.format(b.startTime, 'yyyy-MM-dd''T''HH:mm') : ''},
-                            data-end=${b.endTime != null ? #temporals.format(b.endTime, 'yyyy-MM-dd''T''HH:mm') : ''},
-                            data-guests=${b.guestCount != null ? b.guestCount : '0'},
-                            data-services=${b.services != null ? b.services : ''}"
-                  onclick="openEditModal(this)"><i class=\"fas fa-pen\"></i> Edit</button>
-          <form th:if="${b.status == T(org.example.dine_delight.model.BookingStatus).APPROVED}" th:action="@{/events/delete}" method="post" style="display:inline-block">
-            <input type="hidden" name="id" th:value="${b.id}">
-            <button class="btn" type="submit"><i class="fas fa-trash"></i> Delete</button>
-          </form>
-        </td>
-      </tr>
-      </tbody>
-    </table>
+
+    <!-- Navigation Links -->
+    <nav class="flex-1 py-4">
+      <div class="px-4 mb-6">
+        <p class="text-xs uppercase tracking-wider opacity-70 mb-3">Main Navigation</p>
+        <a href="/dashboard" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+          <i class="fas fa-gauge-high mr-3"></i>
+          Dashboard
+        </a>
+        <a href="/reservations" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+          <i class="fas fa-chair mr-3"></i>
+          Table Reservations
+        </a>
+        <a href="/reservations/my" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+          <i class="fas fa-list mr-3"></i>
+          My Reservations
+        </a>
+        <a href="/events" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+          <i class="fas fa-calendar-plus mr-3"></i>
+          Event Booking
+        </a>
+        <a href="/events/my" class="flex items-center py-3 px-4 bg-accent rounded-lg text-white mb-2">
+          <i class="fas fa-calendar-check mr-3"></i>
+          My Event Requests
+        </a>
+      </div>
+
+      <div class="px-4 mb-6">
+        <p class="text-xs uppercase tracking-wider opacity-70 mb-3">Account</p>
+        <a href="/profile" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+          <i class="fas fa-user mr-3"></i>
+          My Profile
+        </a>
+        <a href="/settings" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+          <i class="fas fa-gear mr-3"></i>
+          Settings
+        </a>
+      </div>
+    </nav>
+
+    <!-- Footer -->
+    <div class="p-4 border-t border-secondary/30">
+      <a href="/logout" class="flex items-center py-2 px-4 hover:bg-secondary/80 rounded-lg transition-colors">
+        <i class="fas fa-right-from-bracket mr-3"></i>
+        Logout
+      </a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="flex-1 overflow-y-auto">
+    <!-- Header -->
+    <header class="bg-white shadow-sm p-4 flex justify-between items-center">
+      <h2 class="text-xl font-semibold">My Event Requests</h2>
+      <div class="flex items-center space-x-4">
+        <a href="/events" class="bg-accent text-white px-4 py-2 rounded-lg hover:bg-accent/90 transition-colors">
+          <i class="fas fa-calendar-plus mr-2"></i>
+          New Event Request
+        </a>
+        <div class="relative">
+          <i class="fas fa-bell text-gray-500"></i>
+          <span class="absolute -top-1 -right-1 bg-accent text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">3</span>
+        </div>
+        <div class="flex items-center">
+          <div class="w-8 h-8 bg-accent rounded-full flex items-center justify-center text-white">
+            <i class="fas fa-user"></i>
+          </div>
+          <span class="ml-2">John Doe</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="p-6">
+      <!-- Alert Messages -->
+      <div th:if="${param.submitted}" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-6">
+        <i class="fas fa-check-circle mr-2"></i>
+        Event request submitted successfully.
+      </div>
+      <div th:if="${param.updated}" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-6">
+        <i class="fas fa-check-circle mr-2"></i>
+        Event request updated successfully.
+      </div>
+      <div th:if="${param.error}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6">
+        <i class="fas fa-exclamation-circle mr-2"></i>
+        Action failed. Please try again.
+      </div>
+      <div th:if="${param.deleted}" class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded-lg mb-6">
+        <i class="fas fa-info-circle mr-2"></i>
+        Approved event deleted successfully.
+      </div>
+
+      <!-- No Bookings Message -->
+      <div th:if="${#lists.isEmpty(bookings)}" class="bg-white rounded-xl shadow-sm p-12 text-center">
+        <div class="w-24 h-24 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+          <i class="fas fa-calendar-times text-secondary text-3xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">No Event Requests</h3>
+        <p class="text-gray-600 mb-6">You haven't made any event requests yet.</p>
+        <a href="/events" class="bg-accent text-white px-6 py-3 rounded-lg hover:bg-accent/90 transition-colors inline-flex items-center">
+          <i class="fas fa-calendar-plus mr-2"></i>
+          Book Your First Event
+        </a>
+      </div>
+
+      <!-- Event Requests Table -->
+      <div th:if="${!#lists.isEmpty(bookings)}" class="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-semibold">Your Event Requests</h3>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="bg-gray-50 text-left text-gray-600 text-sm">
+                <th class="px-6 py-3 font-medium">Space</th>
+                <th class="px-6 py-3 font-medium">Guests</th>
+                <th class="px-6 py-3 font-medium">Start</th>
+                <th class="px-6 py-3 font-medium">End</th>
+                <th class="px-6 py-3 font-medium">Status</th>
+                <th class="px-6 py-3 font-medium text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="b : ${bookings}" class="border-b border-gray-100 hover:bg-gray-50">
+                <td class="px-6 py-4">
+                  <span th:text="${b.eventSpace != null ? b.eventSpace.name : 'N/A'}" class="font-medium"></span>
+                </td>
+                <td class="px-6 py-4">
+                  <span th:text="${b.guestCount != null ? b.guestCount : 'N/A'}" class="text-gray-600"></span>
+                </td>
+                <td class="px-6 py-4">
+                  <span th:text="${b.startTime != null ? #temporals.format(b.startTime, 'yyyy-MM-dd HH:mm') : 'N/A'}" class="text-gray-600"></span>
+                </td>
+                <td class="px-6 py-4">
+                  <span th:text="${b.endTime != null ? #temporals.format(b.endTime, 'yyyy-MM-dd HH:mm') : 'N/A'}" class="text-gray-600"></span>
+                </td>
+                <td class="px-6 py-4">
+                  <span th:if="${b.status == T(org.example.dine_delight.model.BookingStatus).PENDING}" 
+                        class="px-3 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full font-medium">Pending</span>
+                  <span th:if="${b.status == T(org.example.dine_delight.model.BookingStatus).APPROVED}" 
+                        class="px-3 py-1 bg-green-100 text-green-800 text-xs rounded-full font-medium">Approved</span>
+                  <span th:if="${b.status == T(org.example.dine_delight.model.BookingStatus).REJECTED}" 
+                        class="px-3 py-1 bg-red-100 text-red-800 text-xs rounded-full font-medium">Rejected</span>
+                  <span th:if="${b.status == null}" 
+                        class="px-3 py-1 bg-gray-100 text-gray-800 text-xs rounded-full font-medium">Unknown</span>
+                </td>
+                <td class="px-6 py-4 text-right">
+                  <button th:if="${b.status == T(org.example.dine_delight.model.BookingStatus).PENDING}"
+                          type="button" 
+                          class="text-accent hover:text-accent/80 mr-3"
+                          th:attr="data-id=${b.id},
+                                   data-space=${b.eventSpace != null ? b.eventSpace.name : 'N/A'},
+                                   data-start=${b.startTime != null ? #temporals.format(b.startTime, 'yyyy-MM-dd''T''HH:mm') : ''},
+                                   data-end=${b.endTime != null ? #temporals.format(b.endTime, 'yyyy-MM-dd''T''HH:mm') : ''},
+                                   data-guests=${b.guestCount != null ? b.guestCount : '0'},
+                                   data-services=${b.services != null ? b.services : ''}"
+                          onclick="openEditModal(this)">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <form th:if="${b.status == T(org.example.dine_delight.model.BookingStatus).APPROVED}" 
+                        th:action="@{/events/delete}" method="post" style="display:inline-block">
+                    <input type="hidden" name="id" th:value="${b.id}">
+                    <button type="submit" class="text-red-500 hover:text-red-400">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
   </div>
 </div>
 
 <!-- Edit Modal -->
-<div id="editModal" class="modal-backdrop">
-  <div class="modal">
-    <div class="header">
-      <h3><i class="fas fa-pen"></i> Edit Event Request</h3>
-      <button class="close" onclick="closeEditModal()">&times;</button>
+<div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+  <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4">
+    <div class="bg-secondary text-white px-6 py-4 rounded-t-xl flex justify-between items-center">
+      <h3 class="text-lg font-semibold">
+        <i class="fas fa-edit mr-2"></i>
+        Edit Event Request
+      </h3>
+      <button onclick="closeEditModal()" class="text-white hover:text-gray-200 text-xl">
+        <i class="fas fa-times"></i>
+      </button>
     </div>
-    <div class="content">
+    
+    <div class="p-6">
       <form method="post" action="/events/edit" id="editForm">
         <input type="hidden" name="id" id="edit-id">
-        <div style="margin-bottom:10px">
-          <label>Space</label>
-          <input type="text" id="edit-space" disabled>
+        
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Space</label>
+          <input type="text" id="edit-space" disabled 
+                 class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500">
         </div>
-        <div class="row">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
-            <label>Date</label>
-            <input type="date" name="date" id="edit-date" required>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Date</label>
+            <input type="date" name="date" id="edit-date" required 
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent">
           </div>
           <div>
-            <label>Time</label>
-            <input type="time" name="time" id="edit-time" required>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Time</label>
+            <input type="time" name="time" id="edit-time" required 
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent">
           </div>
         </div>
-        <div class="row">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
-            <label>Duration (minutes)</label>
-            <input type="number" name="durationMinutes" id="edit-duration" min="60" step="30" value="180">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Duration (minutes)</label>
+            <input type="number" name="durationMinutes" id="edit-duration" min="60" step="30" value="180" required
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent">
           </div>
           <div>
-            <label>Guests</label>
-            <input type="number" name="guests" id="edit-guests" min="1" required>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Guests</label>
+            <input type="number" name="guests" id="edit-guests" min="1" required
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent">
           </div>
         </div>
-        <div>
-          <label>Services</label>
-          <textarea name="services" id="edit-services"></textarea>
+        
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Services</label>
+          <textarea name="services" id="edit-services" rows="3"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent"></textarea>
         </div>
-        <div style="display:flex; gap:10px; margin-top:12px;">
-          <button type="submit" class="btn"><i class="fas fa-save"></i> Save</button>
-          <button type="button" class="btn ghost" onclick="closeEditModal()"><i class="fas fa-times"></i> Cancel</button>
+        
+        <div class="flex gap-3 justify-end">
+          <button type="button" onclick="closeEditModal()" 
+                  class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+            <i class="fas fa-times mr-2"></i>
+            Cancel
+          </button>
+          <button type="submit" class="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent/90 transition-colors">
+            <i class="fas fa-save mr-2"></i>
+            Save Changes
+          </button>
         </div>
       </form>
     </div>
   </div>
-  
 </div>
 
 <script>
@@ -191,6 +325,7 @@
 
     document.getElementById('editModal').style.display = 'flex';
   }
+  
   function closeEditModal() {
     document.getElementById('editModal').style.display = 'none';
   }

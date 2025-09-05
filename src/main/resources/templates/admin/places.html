@@ -7,76 +7,103 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background:#F8F5F0; color:#3C3C3C; min-height:100vh; display:flex; justify-content:center; align-items:center; }
-    .wrap { width:92%; max-width:1000px; background:#fff; border-radius:16px; box-shadow:0 15px 30px rgba(0,0,0,.1); overflow:hidden; }
-    .header { background:#AF2C2C; color:#fff; padding:20px 28px; display:flex; align-items:center; justify-content:space-between; }
+    body { background:#F8F5F0; color:#3C3C3C; min-height:100vh; }
+    .layout { display:flex; min-height:100vh; }
+    .sidebar { width:240px; background:#fff; border-right:1px solid #eee; padding:22px 18px; position:sticky; top:0; align-self:flex-start; height:100vh; }
+    .brand { display:flex; align-items:center; gap:10px; color:#AF2C2C; font-weight:800; margin-bottom:18px; }
+    .nav { list-style:none; }
+    .nav li { margin-bottom:8px; }
+    .nav a { display:flex; align-items:center; gap:10px; padding:10px 12px; color:#3C3C3C; text-decoration:none; border-radius:8px; }
+    .nav a:hover, .nav a.active { background:#F8F5F0; color:#AF2C2C; }
+    .main { flex:1; padding:0 24px 24px 24px; }
+    .wrap { width:100%; max-width:1200px; margin:0 auto; }
+    .header { background:#AF2C2C; color:#fff; padding:20px 28px; display:flex; align-items:center; justify-content:space-between; border-radius:0 0 16px 16px; box-shadow:0 4px 14px rgba(0,0,0,.08); }
     .header h1 { font-size:1.4rem; }
     .header a { color:#fff; text-decoration:none; font-weight:600; }
-    .content { padding:26px; display:grid; grid-template-columns: 1fr 1fr; gap:18px; }
-    .card { border:1px solid #eee; border-radius:12px; padding:18px; }
+    .content { padding:26px 0; display:grid; grid-template-columns: 1fr 1fr; gap:18px; }
+    .card { border:1px solid #eee; border-radius:12px; padding:18px; background:#fff; box-shadow:0 6px 14px rgba(0,0,0,.04); }
     .card h2 { color:#AF2C2C; font-size:1.2rem; margin-bottom:12px; }
     label { font-weight:600; font-size:.9rem; display:block; margin-bottom:6px; }
-    input, select { width:100%; padding:12px; border:1px solid #ddd; border-radius:8px; margin-bottom:10px; }
+    input, select { width:100%; padding:12px; border:1px solid #ddd; border-radius:8px; margin-bottom:10px; background:#fff; }
     table { width:100%; border-collapse:separate; border-spacing:0; }
     th, td { text-align:left; padding:10px 12px; border-bottom:1px solid #eee; }
     th { color:#AF2C2C; }
     .btn { display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border-radius:8px; border:1px solid #AF2C2C; background:#AF2C2C; color:#fff; cursor:pointer; font-weight:600; }
     .btn:hover { background:#942525; border-color:#942525; }
+    @media (max-width: 1000px) { 
+      .layout { flex-direction:column; }
+      .sidebar { position:static; height:auto; width:100%; border-right:none; border-bottom:1px solid #eee; }
+      .content { grid-template-columns:1fr; }
+    }
   </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="header">
-    <h1><i class="fas fa-map-marker-alt"></i> Manage Event Places</h1>
-    <div>
-      <a href="/admin/events" style="margin-right:8px"><i class="fas fa-clipboard-check"></i> Pending Requests</a>
-      <a href="/admin/dashboard" style="margin-right:8px"><i class="fas fa-gauge"></i> Admin Dashboard</a>
-      <a href="/logout"><i class="fas fa-right-from-bracket"></i> Logout</a>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand"><i class="fas fa-utensils"></i> DineDelight</div>
+    <ul class="nav">
+      <li><a href="/admin"><i class="fas fa-gauge"></i> Dashboard</a></li>
+      <li><a href="/admin/events"><i class="fas fa-clipboard-check"></i> Event Requests</a></li>
+      <li><a class="active" href="/admin/places"><i class="fas fa-map-marker-alt"></i> Places</a></li>
+      <li><a href="/dashboard"><i class="fas fa-user"></i> User Dashboard</a></li>
+      <li><a href="/logout"><i class="fas fa-right-from-bracket"></i> Logout</a></li>
+    </ul>
+  </aside>
+  <main class="main">
+    <div class="wrap">
+      <div class="header">
+        <h1><i class="fas fa-map-marker-alt"></i> Manage Event Places</h1>
+        <div>
+          <a href="/admin/events" style="margin-right:8px"><i class="fas fa-clipboard-check"></i> Pending Requests</a>
+          <a href="/admin/dashboard" style="margin-right:8px"><i class="fas fa-gauge"></i> Admin Dashboard</a>
+          <a href="/logout"><i class="fas fa-right-from-bracket"></i> Logout</a>
+        </div>
+      </div>
+      <div class="content">
+        <div class="card">
+          <h2>Add Location</h2>
+          <form th:action="@{/admin/places/location}" method="post">
+            <label>Location Name</label>
+            <input type="text" name="name" placeholder="e.g. Main Hall Complex" required>
+            <button class="btn" type="submit"><i class="fas fa-plus"></i> Add Location</button>
+          </form>
+          <h2 style="margin-top:16px">Existing Locations</h2>
+          <table>
+            <thead><tr><th>Name</th></tr></thead>
+            <tbody>
+            <tr th:each="l : ${locations}"><td th:text="${l.name}"></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card">
+          <h2>Add Space</h2>
+          <form th:action="@{/admin/places/space}" method="post">
+            <label>Space Name</label>
+            <input type="text" name="name" placeholder="e.g. Ballroom C" required>
+            <label>Capacity</label>
+            <input type="number" name="capacity" min="1" required>
+            <label>Location</label>
+            <select name="locationId" required>
+              <option value="" disabled selected>Select location</option>
+              <option th:each="l : ${locations}" th:value="${l.id}" th:text="${l.name}"></option>
+            </select>
+            <button class="btn" type="submit"><i class="fas fa-plus"></i> Add Space</button>
+          </form>
+          <h2 style="margin-top:16px">Existing Spaces</h2>
+          <table>
+            <thead><tr><th>Name</th><th>Capacity</th><th>Location</th></tr></thead>
+            <tbody>
+            <tr th:each="s : ${spaces}">
+              <td th:text="${s.name}"></td>
+              <td th:text="${s.capacity}"></td>
+              <td th:text="${s.location.name}"></td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
-  </div>
-  <div class="content">
-    <div class="card">
-      <h2>Add Location</h2>
-      <form th:action="@{/admin/places/location}" method="post">
-        <label>Location Name</label>
-        <input type="text" name="name" placeholder="e.g. Main Hall Complex" required>
-        <button class="btn" type="submit"><i class="fas fa-plus"></i> Add Location</button>
-      </form>
-      <h2 style="margin-top:16px">Existing Locations</h2>
-      <table>
-        <thead><tr><th>Name</th></tr></thead>
-        <tbody>
-        <tr th:each="l : ${locations}"><td th:text="${l.name}"></td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="card">
-      <h2>Add Space</h2>
-      <form th:action="@{/admin/places/space}" method="post">
-        <label>Space Name</label>
-        <input type="text" name="name" placeholder="e.g. Ballroom C" required>
-        <label>Capacity</label>
-        <input type="number" name="capacity" min="1" required>
-        <label>Location</label>
-        <select name="locationId" required>
-          <option value="" disabled selected>Select location</option>
-          <option th:each="l : ${locations}" th:value="${l.id}" th:text="${l.name}"></option>
-        </select>
-        <button class="btn" type="submit"><i class="fas fa-plus"></i> Add Space</button>
-      </form>
-      <h2 style="margin-top:16px">Existing Spaces</h2>
-      <table>
-        <thead><tr><th>Name</th><th>Capacity</th><th>Location</th></tr></thead>
-        <tbody>
-        <tr th:each="s : ${spaces}">
-          <td th:text="${s.name}"></td>
-          <td th:text="${s.capacity}"></td>
-          <td th:text="${s.location.name}"></td>
-        </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+  </main>
 </div>
 </body>
 </html>
