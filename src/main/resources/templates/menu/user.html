@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menu - DineDelight</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = { theme: { extend: { colors: { primary:'#F8F5F0', secondary:'#D4A76A', accent:'#AF2C2C', darktext:'#3C3C3C' } } } }
+  </script>
+</head>
+<body class="bg-primary text-darktext min-h-screen">
+<div class="flex h-screen">
+  <div class="w-64 bg-secondary text-white flex flex-col">
+    <div class="p-5 border-b border-secondary/30">
+      <h1 class="text-2xl font-bold">DineDelight</h1>
+      <p class="text-sm opacity-90 tracking-wider">RESTAURANT & EVENTS</p>
+    </div>
+    <nav class="flex-1 py-4">
+      <div class="px-4 mb-6">
+        <p class="text-xs uppercase tracking-wider opacity-70 mb-3">Main Navigation</p>
+        <a href="/dashboard" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+          <i class="fas fa-gauge-high mr-3"></i>
+          Dashboard
+        </a>
+        <a href="/reservations" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+          <i class="fas fa-chair mr-3"></i>
+          Table Reservations
+        </a>
+        <a href="/reservations/my" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+          <i class="fas fa-list mr-3"></i>
+          My Reservations
+        </a>
+        <a href="/events" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+          <i class="fas fa-calendar-plus mr-3"></i>
+          Event Booking
+        </a>
+        <a href="/events/my" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+          <i class="fas fa-calendar-check mr-3"></i>
+          My Event Requests
+        </a>
+        <a href="#" class="flex items-center py-3 px-4 bg-accent rounded-lg text-white mb-2">
+          <i class="fas fa-utensils mr-3"></i>
+          Menu
+        </a>
+      </div>
+
+      <div class="px-4 mb-6">
+        <p class="text-xs uppercase tracking-wider opacity-70 mb-3">Account</p>
+        <a href="/profile" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+          <i class="fas fa-user mr-3"></i>
+          My Profile
+        </a>
+        <a href="/logout" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+          <i class="fas fa-right-from-bracket mr-3"></i>
+          Logout
+        </a>
+      </div>
+    </nav>
+  </div>
+
+  <div class="flex-1 overflow-y-auto">
+    <header class="bg-white shadow-sm p-4 flex justify-between items-center">
+      <h2 class="text-xl font-semibold">Browse Menu</h2>
+      <form method="get" action="/menu" class="flex items-center gap-2">
+        <div class="relative">
+          <i class="fas fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+          <input class="pl-9 pr-3 py-2 border rounded-lg" type="text" name="q" placeholder="Search..." th:value="${q}">
+        </div>
+        <input class="w-28 py-2 px-3 border rounded-lg" type="number" name="min" min="0" step="100" placeholder="Min (cents)" th:value="${min}">
+        <input class="w-28 py-2 px-3 border rounded-lg" type="number" name="max" min="0" step="100" placeholder="Max (cents)" th:value="${max}">
+        <button class="bg-accent text-white px-4 py-2 rounded-lg">Filter</button>
+        <a class="px-3 py-2" href="/menu">Reset</a>
+      </form>
+    </header>
+
+    <main class="p-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden" th:each="i : ${items}">
+          <img th:if="${i.photoUrl}" th:src="${i.photoUrl}" alt="" class="w-full h-40 object-cover">
+          <div class="p-4">
+            <h3 class="font-semibold text-lg" th:text="${i.name}"></h3>
+            <p class="text-sm text-gray-600 min-h-[48px]" th:text="${i.description}"></p>
+            <div class="mt-2 font-bold text-accent" th:text="'LKR ' + ${#numbers.formatDecimal(i.priceCents / 100.0, 1, 'COMMA', 2, 'POINT')}"></div>
+            <div class="mt-4 flex gap-2">
+              <form th:action="@{/cart/add}" method="post">
+                <input type="hidden" name="id" th:value="${i.id}">
+                <input type="hidden" name="qty" value="1">
+                <button class="bg-secondary text-white px-3 py-2 rounded-md"><i class="fas fa-cart-plus mr-1"></i>Add to Cart</button>
+              </form>
+              <form th:action="@{/checkout/buy}" method="post">
+                <input type="hidden" name="id" th:value="${i.id}">
+                <input type="hidden" name="qty" value="1">
+                <button class="bg-accent text-white px-3 py-2 rounded-md"><i class="fas fa-bolt mr-1"></i>Buy Now</button>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div th:if="${#lists.isEmpty(items)}" class="col-span-full text-center text-gray-500 py-16">
+          <i class="fas fa-face-frown text-4xl mb-3"></i>
+          No items found for your filters.
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</body>
+</html>
+
+

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menu Management - Admin</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background:#F8F5F0; color:#3C3C3C; min-height:100vh; }
+    .layout { display:flex; min-height:100vh; }
+    .sidebar { width:240px; background:#fff; border-right:1px solid #eee; padding:22px 18px; position:sticky; top:0; align-self:flex-start; height:100vh; }
+    .brand { display:flex; align-items:center; gap:10px; color:#AF2C2C; font-weight:800; margin-bottom:18px; }
+    .nav { list-style:none; }
+    .nav li { margin-bottom:8px; }
+    .nav a { display:flex; align-items:center; gap:10px; padding:10px 12px; color:#3C3C3C; text-decoration:none; border-radius:8px; }
+    .nav a:hover, .nav a.active { background:#F8F5F0; color:#AF2C2C; }
+    .main { flex:1; padding:0 24px 24px 24px; }
+    .wrap { width:100%; max-width:1200px; margin:0 auto; }
+    .header { background:#AF2C2C; color:#fff; padding:20px 28px; display:flex; align-items:center; justify-content:space-between; border-radius:0 0 16px 16px; box-shadow:0 4px 14px rgba(0,0,0,.08); }
+    .header h1 { font-size:1.4rem; }
+    .content { padding:26px 0; display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+    .card { border:1px solid #eee; border-radius:12px; padding:18px; background:#fff; box-shadow:0 6px 14px rgba(0,0,0,.04); }
+    label { font-weight:600; font-size:.9rem; display:block; margin-bottom:6px; }
+    input, textarea { width:100%; padding:12px; border:1px solid #ddd; border-radius:8px; margin-bottom:10px; }
+    table { width:100%; border-collapse:separate; border-spacing:0; }
+    th, td { text-align:left; padding:10px 12px; border-bottom:1px solid #eee; vertical-align: top; }
+    th { color:#AF2C2C; }
+    .btn { display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:8px; border:1px solid #AF2C2C; background:#AF2C2C; color:#fff; cursor:pointer; font-weight:600; }
+    .btn.ghost { background:#fff; color:#3C3C3C; border:1px solid #D4A76A; }
+    .thumb { width:64px; height:64px; object-fit:cover; border-radius:8px; border:1px solid #eee; }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand"><i class="fas fa-utensils"></i> DineDelight</div>
+    <ul class="nav">
+      <li><a href="/admin"><i class="fas fa-gauge"></i> Dashboard</a></li>
+      <li><a href="/admin/events"><i class="fas fa-clipboard-check"></i> Event Requests</a></li>
+      <li><a href="/admin/places"><i class="fas fa-map-marker-alt"></i> Places</a></li>
+      <li><a class="active" href="/admin/menu"><i class="fas fa-burger"></i> Menu</a></li>
+      <li><a href="/dashboard"><i class="fas fa-user"></i> User Dashboard</a></li>
+      <li><a href="/logout"><i class="fas fa-right-from-bracket"></i> Logout</a></li>
+    </ul>
+  </aside>
+  <main class="main">
+    <div class="wrap">
+      <div class="header">
+        <h1><i class="fas fa-burger"></i> Menu Management</h1>
+        <div></div>
+      </div>
+      <div class="content">
+        <div class="card">
+          <h2>Add New Item</h2>
+          <form th:action="@{/admin/menu}" method="post" th:object="${menuForm}">
+            <label>Name</label>
+            <input type="text" th:field="*{name}" required>
+            <label>Description</label>
+            <textarea rows="3" th:field="*{description}"></textarea>
+            <label>Price (LKR cents)</label>
+            <input type="number" min="0" th:field="*{priceCents}" required>
+            <label>Photo URL</label>
+            <input type="url" th:field="*{photoUrl}">
+            <label><input type="checkbox" th:field="*{available}"> Available</label>
+            <button class="btn" type="submit"><i class="fas fa-plus"></i> Add Item</button>
+          </form>
+        </div>
+        <div class="card">
+          <h2>Existing Items</h2>
+          <table>
+            <thead>
+            <tr>
+              <th>Item</th>
+              <th>Details</th>
+              <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="i : ${items}">
+              <td>
+                <img class="thumb" th:if="${i.photoUrl}" th:src="${i.photoUrl}" alt="thumb">
+                <div th:text="${i.name}"></div>
+                <div th:text="${i.available} ? 'Available' : 'Out of Stock'" style="font-size:.85rem; color:#666"></div>
+              </td>
+              <td>
+                <div th:text="${i.description}"></div>
+                <div><b>Price:</b> <span th:text="${i.priceCents} / 100.0"></span></div>
+              </td>
+              <td>
+                <form th:action="@{'/admin/menu/' + ${i.id}}" method="post">
+                  <input type="hidden" name="name" th:value="${i.name}">
+                  <input type="hidden" name="description" th:value="${i.description}">
+                  <input type="hidden" name="priceCents" th:value="${i.priceCents}">
+                  <input type="hidden" name="photoUrl" th:value="${i.photoUrl}">
+                  <input type="hidden" name="available" th:value="${i.available}">
+                  <button class="btn" type="submit"><i class="fas fa-pen"></i> Save</button>
+                </form>
+                <form th:action="@{'/admin/menu/' + ${i.id} + '/delete'}" method="post" style="margin-top:6px;">
+                  <button class="btn" type="submit"><i class="fas fa-trash"></i> Delete</button>
+                </form>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>
+
+

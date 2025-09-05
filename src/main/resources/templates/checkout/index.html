@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - DineDelight</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = { theme: { extend: { colors: { primary:'#F8F5F0', secondary:'#D4A76A', accent:'#AF2C2C', darktext:'#3C3C3C' } } } }
+  </script>
+</head>
+<body class="bg-primary text-darktext min-h-screen">
+<div class="flex h-screen">
+  <div class="w-64 bg-secondary text-white flex flex-col">
+    <div class="p-5 border-b border-secondary/30">
+      <h1 class="text-2xl font-bold">DineDelight</h1>
+      <p class="text-sm opacity-90 tracking-wider">RESTAURANT & EVENTS</p>
+    </div>
+    <nav class="flex-1 py-4">
+      <div class="px-4 mb-6">
+        <p class="text-xs uppercase tracking-wider opacity-70 mb-3">Main Navigation</p>
+        <a href="/dashboard" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors"><i class="fas fa-gauge-high mr-3"></i>Dashboard</a>
+        <a href="/reservations" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors"><i class="fas fa-chair mr-3"></i>Table Reservations</a>
+        <a href="/events" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors"><i class="fas fa-calendar-plus mr-3"></i>Event Booking</a>
+        <a href="/menu" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors"><i class="fas fa-utensils mr-3"></i>Menu</a>
+        <a href="/orders" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors"><i class="fas fa-receipt mr-3"></i>Food Orders</a>
+        <a href="/cart" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors"><i class="fas fa-cart-shopping mr-3"></i>My Cart</a>
+        <a href="/checkout" class="flex items-center py-3 px-4 bg-accent rounded-lg text-white mb-2"><i class="fas fa-credit-card mr-3"></i>Checkout</a>
+      </div>
+      <div class="px-4 mb-6">
+        <p class="text-xs uppercase tracking-wider opacity-70 mb-3">Account</p>
+        <a href="/profile" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors"><i class="fas fa-user mr-3"></i>My Profile</a>
+        <a href="/logout" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors"><i class="fas fa-right-from-bracket mr-3"></i>Logout</a>
+      </div>
+    </nav>
+  </div>
+  <div class="flex-1 overflow-y-auto">
+    <header class="bg-white shadow-sm p-4 flex justify-between items-center">
+      <h2 class="text-xl font-semibold">Checkout</h2>
+      <a href="/cart" class="text-accent hover:underline flex items-center"><i class="fas fa-cart-shopping mr-2"></i>Back to Cart</a>
+    </header>
+    <main class="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="lg:col-span-2 bg-white rounded-xl shadow-sm p-4">
+        <table class="w-full">
+          <thead>
+          <tr class="text-left border-b text-gray-500 text-sm">
+            <th class="pb-3">Item</th><th class="pb-3">Qty</th><th class="pb-3">Total</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="entry : ${lines}" class="border-b">
+            <td class="py-4" th:text="${entry.key.name}"></td>
+            <td class="py-4" th:text="${entry.value}"></td>
+            <td class="py-4" th:text="'LKR ' + ${#numbers.formatDecimal((entry.key.priceCents * entry.value) / 100.0, 1, 'COMMA', 2, 'POINT')}"></td>
+          </tr>
+          </tbody>
+        </table>
+        <div class="text-right mt-4 font-bold">Subtotal: <span th:text="'LKR ' + ${#numbers.formatDecimal(subtotal / 100.0, 1, 'COMMA', 2, 'POINT')}"></span></div>
+        <div th:if="${param.invalid}" class="mt-2 text-red-600">Invalid card details. Use 16-digit number and 3-digit CVV.</div>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm p-4">
+        <form th:action="@{/checkout}" method="post" class="space-y-3">
+          <input class="border rounded px-3 py-2 w-full" type="text" name="name" placeholder="Name on Card" required>
+          <input class="border rounded px-3 py-2 w-full" type="text" name="cardNumber" placeholder="Card Number (16 digits)" required>
+          <div class="grid grid-cols-2 gap-3">
+            <input class="border rounded px-3 py-2 w-full" type="text" name="expiry" placeholder="MM/YY" required>
+            <input class="border rounded px-3 py-2 w-full" type="text" name="cvv" placeholder="CVV (3 digits)" required>
+          </div>
+          <button class="bg-accent text-white px-4 py-2 rounded-lg w-full" type="submit"><i class="fas fa-lock mr-2"></i>Pay Securely</button>
+        </form>
+      </div>
+    </main>
+  </div>
+</div>
+</body>
+</html>
+
+
