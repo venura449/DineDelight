@@ -6,6 +6,8 @@
   <title>Checkout - DineDelight</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
   <script>
     tailwind.config = { theme: { extend: { colors: { primary:'#F8F5F0', secondary:'#D4A76A', accent:'#AF2C2C', darktext:'#3C3C3C' } } } }
   </script>
@@ -23,6 +25,14 @@
         <a href="/dashboard" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors"><i class="fas fa-gauge-high mr-3"></i>Dashboard</a>
         <a href="/reservations" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors"><i class="fas fa-chair mr-3"></i>Table Reservations</a>
         <a href="/events" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors"><i class="fas fa-calendar-plus mr-3"></i>Event Booking</a>
+        <a href="/orders" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+          <i class="fas fa-receipt mr-3"></i>
+          Food Orders
+        </a>
+        <a href="/inquiries" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+          <i class="fas fa-question-circle mr-3"></i>
+          My Inquiries
+        </a>
         <a href="/menu" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors"><i class="fas fa-utensils mr-3"></i>Menu</a>
         <a href="/orders" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors"><i class="fas fa-receipt mr-3"></i>Food Orders</a>
         <a href="/cart" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors"><i class="fas fa-cart-shopping mr-3"></i>My Cart</a>
@@ -73,6 +83,21 @@
     </main>
   </div>
 </div>
+
+<script>
+  // Toastify notifications
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('invalid')) {
+    Toastify({
+      text: "Invalid card details. Please check and try again.",
+      duration: 4000,
+      gravity: "top",
+      position: "right",
+      backgroundColor: "#EF4444",
+      stopOnFocus: true
+    }).showToast();
+  }
+</script>
 </body>
 </html>
 

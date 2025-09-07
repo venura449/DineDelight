@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment - DineDelight</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { primary:'#F8F5F0', secondary:'#D4A76A', accent:'#AF2C2C', darktext:'#3C3C3C' } } } }
+  </script>
+</head>
+<body class="bg-primary text-darktext min-h-screen">
+
+  <!-- Sidebar -->
+  <div class="flex h-screen">
+    <div class="w-64 bg-secondary text-white p-4 flex flex-col">
+      <div class="flex items-center mb-8">
+        <i class="fas fa-utensils text-2xl mr-3"></i>
+        <h1 class="text-xl font-bold">DineDelight</h1>
+      </div>
+
+      <nav class="flex-1">
+        <div class="px-4 mb-6">
+          <p class="text-xs uppercase tracking-wider opacity-70 mb-3">Main</p>
+          <a href="/dashboard" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+            <i class="fas fa-gauge mr-3"></i>
+            Dashboard
+          </a>
+          <a href="/reservations" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+            <i class="fas fa-calendar mr-3"></i>
+            Make Reservation
+          </a>
+          <a href="/reservations/my" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+            <i class="fas fa-list mr-3"></i>
+            My Reservations
+          </a>
+          <a href="/events" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+            <i class="fas fa-calendar-check mr-3"></i>
+            My Event Requests
+          </a>
+          <a href="/menu" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+            <i class="fas fa-utensils mr-3"></i>
+            Menu
+          </a>
+        </div>
+
+        <div class="px-4 mb-6">
+          <p class="text-xs uppercase tracking-wider opacity-70 mb-3">Account</p>
+          <a href="/profile" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+            <i class="fas fa-user mr-3"></i>
+            My Profile
+          </a>
+        </div>
+      </nav>
+
+      <div class="p-4 border-t border-secondary/30">
+        <a href="/logout" class="flex items-center py-2 px-4 hover:bg-secondary/80 rounded-lg transition-colors">
+          <i class="fas fa-right-from-bracket mr-3"></i>
+          Logout
+        </a>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 overflow-y-auto">
+      <div class="p-8">
+        <div class="max-w-2xl mx-auto">
+          <div class="bg-white rounded-xl shadow-sm p-8">
+            <div class="text-center mb-8">
+              <i class="fas fa-credit-card text-4xl text-accent mb-4"></i>
+              <h1 class="text-2xl font-bold text-darktext">Payment Required</h1>
+              <p class="text-gray-600 mt-2">Complete your reservation with advance payment</p>
+            </div>
+
+            <!-- Payment Notice -->
+            <div class="bg-accent/10 border border-accent/20 rounded-lg p-4 mb-6">
+              <div class="flex items-start">
+                <i class="fas fa-info-circle text-accent mt-1 mr-3"></i>
+                <div>
+                  <h3 class="font-semibold text-accent mb-2">Advance Payment Required</h3>
+                  <p class="text-sm text-gray-700">
+                    To secure your reservation, we require a 20% advance payment. 
+                    The remaining amount will be paid at the restaurant.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Reservation Summary -->
+            <div class="bg-gray-50 rounded-lg p-6 mb-6">
+              <h3 class="font-semibold text-darktext mb-4">Reservation Summary</h3>
+              <div class="space-y-2">
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Table:</span>
+                  <span class="font-medium" th:text="${reservation.diningTable.tableCode}">T1</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Date & Time:</span>
+                  <span class="font-medium" th:text="${#temporals.format(reservation.startTime, 'MMM d, yyyy h:mm a')}">Jan 15, 2024 7:00 PM</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Duration:</span>
+                  <span class="font-medium" th:text="${#temporals.format(reservation.endTime, 'h:mm a')}">9:00 PM</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Guests:</span>
+                  <span class="font-medium" th:text="${reservation.guestCount}">4</span>
+                </div>
+                <hr class="my-3">
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Total Price:</span>
+                  <span class="font-medium" th:text="'LKR ' + ${#numbers.formatDecimal(reservation.totalPriceCents / 100.0, 1, 'COMMA', 2, 'POINT')}">LKR 2,000.00</span>
+                </div>
+                <div class="flex justify-between text-accent">
+                  <span class="font-semibold">Advance Payment (20%):</span>
+                  <span class="font-bold text-lg" th:text="'LKR ' + ${#numbers.formatDecimal(reservation.advancePaymentCents / 100.0, 1, 'COMMA', 2, 'POINT')}">LKR 400.00</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Payment Form -->
+            <form th:action="@{'/reservations/' + ${reservation.id} + '/payment'}" method="post" th:object="${paymentForm}">
+              <div class="space-y-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Card Number</label>
+                  <input type="text" th:field="*{cardNumber}" 
+                         placeholder="1234 5678 9012 3456"
+                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent"
+                         maxlength="19">
+                  <div th:if="${#fields.hasErrors('cardNumber')}" class="text-red-500 text-sm mt-1">
+                    <span th:errors="*{cardNumber}">Card number is required</span>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Expiry Date</label>
+                    <input type="text" th:field="*{expiry}" 
+                           placeholder="MM/YY"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent"
+                           maxlength="5">
+                    <div th:if="${#fields.hasErrors('expiry')}" class="text-red-500 text-sm mt-1">
+                      <span th:errors="*{expiry}">Expiry is required</span>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">CVV</label>
+                    <input type="text" th:field="*{cvv}" 
+                           placeholder="123"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent"
+                           maxlength="3">
+                    <div th:if="${#fields.hasErrors('cvv')}" class="text-red-500 text-sm mt-1">
+                      <span th:errors="*{cvv}">CVV is required</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Cardholder Name</label>
+                  <input type="text" th:field="*{cardholderName}" 
+                         placeholder="John Doe"
+                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent">
+                  <div th:if="${#fields.hasErrors('cardholderName')}" class="text-red-500 text-sm mt-1">
+                    <span th:errors="*{cardholderName}">Cardholder name is required</span>
+                  </div>
+                </div>
+
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <div class="flex items-start">
+                    <i class="fas fa-shield-alt text-yellow-600 mt-1 mr-3"></i>
+                    <div>
+                      <h4 class="font-semibold text-yellow-800 mb-1">Secure Payment</h4>
+                      <p class="text-sm text-yellow-700">
+                        This is a demo payment system. Use any card number starting with 3, 4, or 5 for testing.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex gap-4">
+                  <button type="submit" class="flex-1 bg-accent text-white py-3 px-6 rounded-lg hover:bg-accent/90 transition-colors font-semibold">
+                    <i class="fas fa-lock mr-2"></i>
+                    Pay LKR <span th:text="${#numbers.formatDecimal(reservation.advancePaymentCents / 100.0, 1, 'COMMA', 2, 'POINT')}">400.00</span>
+                  </button>
+                  <a href="/reservations/my" class="flex-1 bg-gray-300 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-400 transition-colors font-semibold text-center">
+                    Cancel
+                  </a>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Format card number input
+    document.querySelector('input[name="cardNumber"]').addEventListener('input', function(e) {
+      let value = e.target.value.replace(/\s/g, '').replace(/[^0-9]/gi, '');
+      let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+      e.target.value = formattedValue;
+    });
+
+    // Format expiry input
+    document.querySelector('input[name="expiry"]').addEventListener('input', function(e) {
+      let value = e.target.value.replace(/\D/g, '');
+      if (value.length >= 2) {
+        value = value.substring(0, 2) + '/' + value.substring(2, 4);
+      }
+      e.target.value = value;
+    });
+
+    // Format CVV input
+    document.querySelector('input[name="cvv"]').addEventListener('input', function(e) {
+      e.target.value = e.target.value.replace(/[^0-9]/g, '');
+    });
+
+    // Toastify notifications
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('invalid')) {
+      Toastify({
+        text: "Invalid card details. Please check and try again.",
+        duration: 4000,
+        gravity: "top",
+        position: "right",
+        backgroundColor: "#EF4444",
+        stopOnFocus: true
+      }).showToast();
+    }
+  </script>
+</body>
+</html>
+

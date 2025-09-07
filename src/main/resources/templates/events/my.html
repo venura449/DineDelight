@@ -58,6 +58,14 @@
           <i class="fas fa-calendar-plus mr-3"></i>
           Event Booking
         </a>
+        <a href="/orders" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+          <i class="fas fa-receipt mr-3"></i>
+          Food Orders
+        </a>
+        <a href="/inquiries" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
+          <i class="fas fa-question-circle mr-3"></i>
+          My Inquiries
+        </a>
         <a href="/events/my" class="flex items-center py-3 px-4 bg-accent rounded-lg text-white mb-2">
           <i class="fas fa-calendar-check mr-3"></i>
           My Event Requests
@@ -73,10 +81,6 @@
         <a href="/profile" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
           <i class="fas fa-user mr-3"></i>
           My Profile
-        </a>
-        <a href="/settings" class="flex items-center py-3 px-4 hover:bg-secondary/80 rounded-lg mb-2 transition-colors">
-          <i class="fas fa-gear mr-3"></i>
-          Settings
         </a>
       </div>
     </nav>
@@ -132,6 +136,18 @@
         <i class="fas fa-info-circle mr-2"></i>
         Approved event deleted successfully.
       </div>
+      <div th:if="${param.paymentSuccess}" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-6">
+        <i class="fas fa-check-circle mr-2"></i>
+        Payment successful! Your event booking is confirmed.
+      </div>
+      <div th:if="${param.alreadyPaid}" class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded-lg mb-6">
+        <i class="fas fa-info-circle mr-2"></i>
+        Payment already completed for this event booking.
+      </div>
+      <div th:if="${param.unauthorized}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6">
+        <i class="fas fa-exclamation-circle mr-2"></i>
+        Unauthorized access to event booking.
+      </div>
 
       <!-- No Bookings Message -->
       <div th:if="${#lists.isEmpty(bookings)}" class="bg-white rounded-xl shadow-sm p-12 text-center">
@@ -161,6 +177,7 @@
                 <th class="px-6 py-3 font-medium">Start</th>
                 <th class="px-6 py-3 font-medium">End</th>
                 <th class="px-6 py-3 font-medium">Status</th>
+                <th class="px-6 py-3 font-medium">Payment</th>
                 <th class="px-6 py-3 font-medium text-right">Actions</th>
               </tr>
             </thead>
@@ -188,26 +205,55 @@
                   <span th:if="${b.status == null}" 
                         class="px-3 py-1 bg-gray-100 text-gray-800 text-xs rounded-full font-medium">Unknown</span>
                 </td>
+                <td class="px-6 py-4">
+                  <div class="space-y-1">
+                    <div class="text-sm">
+                      <span class="text-gray-600">Total: </span>
+                      <span class="font-medium" th:text="'LKR ' + ${#numbers.formatDecimal(b.totalPriceCents / 100.0, 1, 'COMMA', 2, 'POINT')}">LKR 15,000.00</span>
+                    </div>
+                    <div class="text-sm">
+                      <span class="text-gray-600">Advance: </span>
+                      <span class="font-medium" th:text="'LKR ' + ${#numbers.formatDecimal(b.advancePaymentCents / 100.0, 1, 'COMMA', 2, 'POINT')}">LKR 3,000.00</span>
+                    </div>
+                    <div th:if="${b.advancePaymentPaid}" class="text-xs text-green-600 font-medium">
+                      <i class="fas fa-check-circle mr-1"></i>Paid
+                    </div>
+                    <div th:unless="${b.advancePaymentPaid}" class="text-xs text-red-600 font-medium">
+                      <i class="fas fa-exclamation-circle mr-1"></i>Pending
+                    </div>
+                  </div>
+                </td>
                 <td class="px-6 py-4 text-right">
-                  <button th:if="${b.status == T(org.example.dine_delight.model.BookingStatus).PENDING}"
-                          type="button" 
-                          class="text-accent hover:text-accent/80 mr-3"
-                          th:attr="data-id=${b.id},
-                                   data-space=${b.eventSpace != null ? b.eventSpace.name : 'N/A'},
-                                   data-start=${b.startTime != null ? #temporals.format(b.startTime, 'yyyy-MM-dd''T''HH:mm') : ''},
-                                   data-end=${b.endTime != null ? #temporals.format(b.endTime, 'yyyy-MM-dd''T''HH:mm') : ''},
-                                   data-guests=${b.guestCount != null ? b.guestCount : '0'},
-                                   data-services=${b.services != null ? b.services : ''}"
-                          onclick="openEditModal(this)">
-                    <i class="fas fa-edit"></i>
-                  </button>
-                  <form th:if="${b.status == T(org.example.dine_delight.model.BookingStatus).APPROVED}" 
-                        th:action="@{/events/delete}" method="post" style="display:inline-block">
-                    <input type="hidden" name="id" th:value="${b.id}">
-                    <button type="submit" class="text-red-500 hover:text-red-400">
-                      <i class="fas fa-trash"></i>
-                    </button>
-                  </form>
+                  <div class="flex flex-col gap-2">
+                    <div th:unless="${b.advancePaymentPaid}">
+                      <a th:href="@{'/events/' + ${b.id} + '/payment'}" 
+                         class="bg-accent text-white px-3 py-1 rounded text-sm hover:bg-accent/90 transition-colors">
+                        <i class="fas fa-credit-card mr-1"></i>
+                        Pay Now
+                      </a>
+                    </div>
+                    <div class="flex gap-2">
+                      <button th:if="${b.status == T(org.example.dine_delight.model.BookingStatus).PENDING}"
+                              type="button" 
+                              class="text-accent hover:text-accent/80"
+                              th:attr="data-id=${b.id},
+                                       data-space=${b.eventSpace != null ? b.eventSpace.name : 'N/A'},
+                                       data-start=${b.startTime != null ? #temporals.format(b.startTime, 'yyyy-MM-dd''T''HH:mm') : ''},
+                                       data-end=${b.endTime != null ? #temporals.format(b.endTime, 'yyyy-MM-dd''T''HH:mm') : ''},
+                                       data-guests=${b.guestCount != null ? b.guestCount : '0'},
+                                       data-services=${b.services != null ? b.services : ''}"
+                              onclick="openEditModal(this)">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <form th:if="${b.status == T(org.example.dine_delight.model.BookingStatus).APPROVED}" 
+                            th:action="@{/events/delete}" method="post" style="display:inline-block">
+                        <input type="hidden" name="id" th:value="${b.id}">
+                        <button type="submit" class="text-red-500 hover:text-red-400">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </form>
+                    </div>
+                  </div>
                 </td>
               </tr>
             </tbody>

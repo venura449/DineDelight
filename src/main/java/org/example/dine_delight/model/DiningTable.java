@@ -16,6 +16,9 @@ public class DiningTable {
     @Column(nullable = false)
     private int capacity;
 
+    @Column(nullable = false)
+    private int pricePerPersonPerHourCents; // Price in cents (e.g., 50000 = LKR 500.00)
+
     public Long getId() {
         return id;
     }
@@ -38,6 +41,14 @@ public class DiningTable {
 
     public void setCapacity(int capacity) {
         this.capacity = capacity;
+    }
+
+    public int getPricePerPersonPerHourCents() {
+        return pricePerPersonPerHourCents;
+    }
+
+    public void setPricePerPersonPerHourCents(int pricePerPersonPerHourCents) {
+        this.pricePerPersonPerHourCents = pricePerPersonPerHourCents;
     }
 }
 

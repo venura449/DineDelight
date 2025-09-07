@@ -28,6 +28,15 @@ public class Reservation {
     @Column(nullable = false)
     private int guestCount;
 
+    @Column(nullable = false)
+    private int totalPriceCents;
+
+    @Column(nullable = false)
+    private int advancePaymentCents;
+
+    @Column(nullable = false)
+    private boolean advancePaymentPaid = false;
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public DiningTable getDiningTable() { return diningTable; }
@@ -40,6 +49,12 @@ public class Reservation {
     public void setEndTime(LocalDateTime endTime) { this.endTime = endTime; }
     public int getGuestCount() { return guestCount; }
     public void setGuestCount(int guestCount) { this.guestCount = guestCount; }
+    public int getTotalPriceCents() { return totalPriceCents; }
+    public void setTotalPriceCents(int totalPriceCents) { this.totalPriceCents = totalPriceCents; }
+    public int getAdvancePaymentCents() { return advancePaymentCents; }
+    public void setAdvancePaymentCents(int advancePaymentCents) { this.advancePaymentCents = advancePaymentCents; }
+    public boolean isAdvancePaymentPaid() { return advancePaymentPaid; }
+    public void setAdvancePaymentPaid(boolean advancePaymentPaid) { this.advancePaymentPaid = advancePaymentPaid; }
 }
 
 

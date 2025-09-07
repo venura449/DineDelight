@@ -34,6 +34,15 @@ public class EventBooking {
     @Column(nullable = false)
     private BookingStatus status = BookingStatus.PENDING;
 
+    @Column(nullable = false)
+    private int totalPriceCents;
+
+    @Column(nullable = false)
+    private int advancePaymentCents;
+
+    @Column(nullable = false)
+    private boolean advancePaymentPaid = false;
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public EventSpace getEventSpace() { return eventSpace; }
@@ -50,6 +59,12 @@ public class EventBooking {
     public void setServices(String services) { this.services = services; }
     public BookingStatus getStatus() { return status; }
     public void setStatus(BookingStatus status) { this.status = status; }
+    public int getTotalPriceCents() { return totalPriceCents; }
+    public void setTotalPriceCents(int totalPriceCents) { this.totalPriceCents = totalPriceCents; }
+    public int getAdvancePaymentCents() { return advancePaymentCents; }
+    public void setAdvancePaymentCents(int advancePaymentCents) { this.advancePaymentCents = advancePaymentCents; }
+    public boolean isAdvancePaymentPaid() { return advancePaymentPaid; }
+    public void setAdvancePaymentPaid(boolean advancePaymentPaid) { this.advancePaymentPaid = advancePaymentPaid; }
 }
 
 
