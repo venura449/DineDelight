@@ -57,6 +57,16 @@ public class ReservationService {
         reservation.setStartTime(start);
         reservation.setEndTime(end);
         reservation.setGuestCount(guestCount);
+        
+        // Calculate pricing using table's price per person per hour
+        int hours = (int) Math.ceil(durationMinutes / 60.0);
+        int totalPriceCents = guestCount * hours * table.getPricePerPersonPerHourCents();
+        int advancePaymentCents = (int) (totalPriceCents * 0.20); // 20% advance
+        
+        reservation.setTotalPriceCents(totalPriceCents);
+        reservation.setAdvancePaymentCents(advancePaymentCents);
+        reservation.setAdvancePaymentPaid(false);
+        
         return Optional.of(reservationRepository.save(reservation));
     }
 

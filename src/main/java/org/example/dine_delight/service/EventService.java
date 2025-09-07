@@ -65,6 +65,16 @@ public class EventService {
         booking.setGuestCount(guestCount);
         booking.setServices(services);
         booking.setStatus(BookingStatus.PENDING);
+        
+        // Calculate pricing using space's price per person per hour
+        int hours = (int) Math.ceil(durationMinutes / 60.0);
+        int totalPriceCents = guestCount * hours * space.getPricePerPersonPerHourCents();
+        int advancePaymentCents = (int) (totalPriceCents * 0.20); // 20% advance
+        
+        booking.setTotalPriceCents(totalPriceCents);
+        booking.setAdvancePaymentCents(advancePaymentCents);
+        booking.setAdvancePaymentPaid(false);
+        
         return Optional.of(eventBookingRepository.save(booking));
     }
 

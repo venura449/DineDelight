@@ -85,6 +85,9 @@
             <input type="text" name="name" placeholder="e.g. Ballroom C" required>
             <label>Capacity</label>
             <input type="number" name="capacity" min="1" required>
+            <label>Price per Person per Hour (LKR)</label>
+            <input type="number" name="pricePerPersonPerHourLkr" min="0" step="1" placeholder="1000" required>
+            <small style="color:#666; font-size:0.85rem;">Enter price in LKR (e.g., 1000 for LKR 1000.00)</small>
             <label>Location</label>
             <select name="locationId" required>
               <option value="" disabled selected>Select location</option>
@@ -94,11 +97,12 @@
           </form>
           <h2 style="margin-top:16px">Existing Spaces</h2>
           <table>
-            <thead><tr><th>Name</th><th>Capacity</th><th>Location</th></tr></thead>
+            <thead><tr><th>Name</th><th>Capacity</th><th>Price per Person/Hour</th><th>Location</th></tr></thead>
             <tbody>
             <tr th:each="s : ${spaces}">
               <td th:text="${s.name}"></td>
               <td th:text="${s.capacity}"></td>
+              <td th:text="'LKR ' + ${#numbers.formatDecimal(s.pricePerPersonPerHourCents / 100.0, 1, 'COMMA', 2, 'POINT')}">LKR 1000.00</td>
               <td th:text="${s.location.name}"></td>
             </tr>
             </tbody>

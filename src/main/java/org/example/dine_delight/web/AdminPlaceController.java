@@ -41,13 +41,16 @@ public class AdminPlaceController {
     @PostMapping("/space")
     public String addSpace(@RequestParam String name,
                            @RequestParam int capacity,
-                           @RequestParam Long locationId) {
+                           @RequestParam Long locationId,
+                           @RequestParam(defaultValue = "1000") int pricePerPersonPerHourLkr) {
         EventLocation loc = locationRepository.findById(locationId).orElse(null);
         if (loc == null) return "redirect:/admin/places?error";
         EventSpace space = new EventSpace();
         space.setName(name);
         space.setCapacity(capacity);
         space.setLocation(loc);
+        // Convert LKR to cents
+        space.setPricePerPersonPerHourCents(pricePerPersonPerHourLkr * 100);
         spaceRepository.save(space);
         return "redirect:/admin/places?spaceAdded";
     }

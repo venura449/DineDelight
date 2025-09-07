@@ -71,6 +71,9 @@
             <input type="text" th:field="*{tableCode}" placeholder="e.g. T7" required>
             <label>Capacity</label>
             <input type="number" th:field="*{capacity}" min="1" required>
+            <label>Price per Person per Hour (LKR)</label>
+            <input type="number" th:field="*{pricePerPersonPerHourLkr}" min="0" step="1" placeholder="500" required>
+            <small style="color:#666; font-size:0.85rem;">Enter price in LKR (e.g., 500 for LKR 500.00)</small>
             <button class="btn" type="submit"><i class="fas fa-plus"></i> Add Table</button>
           </form>
           <div class="alert" th:if="${param.added}" style="margin-top:10px; background:#E6F4EA; color:#2E7D32; padding:10px; border-radius:8px;">Table added.</div>
@@ -82,12 +85,14 @@
             <tr>
               <th>Code</th>
               <th>Capacity</th>
+              <th>Price per Person/Hour</th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="t : ${tables}">
               <td th:text="${t.tableCode}"></td>
               <td th:text="${t.capacity}"></td>
+              <td th:text="'LKR ' + ${#numbers.formatDecimal(t.pricePerPersonPerHourCents / 100.0, 1, 'COMMA', 2, 'POINT')}">LKR 500.00</td>
             </tr>
             </tbody>
           </table>
